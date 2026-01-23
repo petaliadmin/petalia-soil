@@ -11,6 +11,7 @@ export interface Location {
  * Address details for a land parcel
  */
 export interface Address {
+  city: string;
   region: string;
   commune: string;
   village?: string;

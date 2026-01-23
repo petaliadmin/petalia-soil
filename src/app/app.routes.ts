@@ -22,6 +22,10 @@ export const routes: Routes = [
     title: 'Carte interactive - Petalia Soil'
   },
   {
+    path: 'admin',
+    loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes)
+  },
+  {
     path: '**',
     redirectTo: '',
     pathMatch: 'full'

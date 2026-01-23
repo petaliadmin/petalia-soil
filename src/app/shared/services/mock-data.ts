@@ -90,6 +90,7 @@ export const MOCK_LANDS: Land[] = [
       coordinates: [-16.0172, 16.4893] // Saint-Louis region
     },
     address: {
+      city: 'Richard Toll',
       region: 'Saint-Louis',
       commune: 'Richard Toll',
       village: 'Ndiangue',
@@ -137,6 +138,7 @@ export const MOCK_LANDS: Land[] = [
       coordinates: [-16.2719, 12.5833] // Ziguinchor
     },
     address: {
+      city: 'Ziguinchor',
       region: 'Ziguinchor',
       commune: 'Oussouye',
       country: 'Sénégal'
@@ -178,6 +180,7 @@ export const MOCK_LANDS: Land[] = [
       coordinates: [-17.1547, 14.8167] // Thiès/Niayes
     },
     address: {
+      city: 'Mboro',
       region: 'Thiès',
       commune: 'Mboro',
       village: 'Fass Boye',
@@ -221,6 +224,7 @@ export const MOCK_LANDS: Land[] = [
       coordinates: [-13.6673, 13.7707] // Tambacounda
     },
     address: {
+      city: 'Tambacounda',
       region: 'Tambacounda',
       commune: 'Koumpentoum',
       country: 'Sénégal'
@@ -268,6 +272,7 @@ export const MOCK_LANDS: Land[] = [
       coordinates: [-16.4167, 14.3333] // Fatick
     },
     address: {
+      city: 'Fatick',
       region: 'Fatick',
       commune: 'Foundiougne',
       country: 'Sénégal'
@@ -309,6 +314,7 @@ export const MOCK_LANDS: Land[] = [
       coordinates: [-14.9500, 16.6500] // Podor
     },
     address: {
+      city: 'Podor',
       region: 'Saint-Louis',
       commune: 'Podor',
       country: 'Sénégal'
@@ -351,6 +357,7 @@ export const MOCK_LANDS: Land[] = [
       coordinates: [-12.1747, 12.5605] // Kédougou
     },
     address: {
+      city: 'Kédougou',
       region: 'Kédougou',
       commune: 'Saraya',
       country: 'Sénégal'
@@ -392,6 +399,7 @@ export const MOCK_LANDS: Land[] = [
       coordinates: [-17.2283, 14.7833] // Rufisque/Sangalkam
     },
     address: {
+      city: 'Dakar',
       region: 'Dakar',
       commune: 'Sangalkam',
       country: 'Sénégal'

@@ -44,6 +44,18 @@ export const SOIL_TEXTURE_LABELS: Record<SoilTexture, string> = {
 };
 
 /**
+ * Soil textures for form select options
+ */
+export const SOIL_TEXTURES: { value: SoilTexture; label: string }[] = [
+  { value: 'sandy', label: 'Sableux' },
+  { value: 'clay', label: 'Argileux' },
+  { value: 'loamy', label: 'Limoneux' },
+  { value: 'silty', label: 'Silteux' },
+  { value: 'peaty', label: 'Tourbeux' },
+  { value: 'chalky', label: 'Calcaire' }
+];
+
+/**
  * Drainage quality display labels in French
  */
 export const DRAINAGE_LABELS: Record<DrainageQuality, string> = {

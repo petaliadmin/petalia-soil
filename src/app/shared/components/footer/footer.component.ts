@@ -61,7 +61,7 @@ import { RouterLink } from '@angular/router';
                 <a routerLink="/map" class="text-gray-400 hover:text-agri-400 transition-colors">Carte interactive</a>
               </li>
               <li>
-                <a href="#" class="text-gray-400 hover:text-agri-400 transition-colors">Publier une annonce</a>
+                <a routerLink="/admin/register" class="text-gray-400 hover:text-agri-400 transition-colors">Publier une annonce</a>
               </li>
             </ul>
           </div>
