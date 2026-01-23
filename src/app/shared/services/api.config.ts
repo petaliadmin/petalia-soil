@@ -16,7 +16,7 @@ export const API_CONFIG = new InjectionToken<ApiConfig>('API_CONFIG');
  * Set useMockData to false when connecting to real backend
  */
 export const DEFAULT_API_CONFIG: ApiConfig = {
-  baseUrl: 'http://localhost:3000', // Petalia Soil API
+  baseUrl: 'https://petalia-soil-api.vercel.app', // Petalia Soil API
   timeout: 30000,
   useMockData: true // Set to false to use real API
 };
