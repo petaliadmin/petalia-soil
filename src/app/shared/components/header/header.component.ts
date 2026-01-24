@@ -42,6 +42,11 @@ import { AuthService } from '../../services/auth.service';
                class="px-4 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-colors">
               Carte
             </a>
+            <a routerLink="/tools"
+               routerLinkActive="bg-agri-50 text-agri-700 dark:bg-agri-900/50 dark:text-agri-400"
+               class="px-4 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-colors">
+              Outils
+            </a>
           </div>
 
           <!-- Actions -->
@@ -176,6 +181,12 @@ import { AuthService } from '../../services/auth.service';
                  routerLinkActive="bg-agri-50 text-agri-700 dark:bg-agri-900/50 dark:text-agri-400"
                  class="px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-colors">
                 Carte interactive
+              </a>
+              <a routerLink="/tools"
+                 (click)="closeMobileMenu()"
+                 routerLinkActive="bg-agri-50 text-agri-700 dark:bg-agri-900/50 dark:text-agri-400"
+                 class="px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-colors">
+                Outils agricoles
               </a>
 
               @if (authService.isAuthenticated()) {

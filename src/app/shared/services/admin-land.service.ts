@@ -2,11 +2,54 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, delay, map, catchError, throwError } from 'rxjs';
 import { Land, LandType, LandStatus } from '../models/land.model';
-import { SoilParameters } from '../models/soil-parameters.model';
+import { SoilTexture, DrainageQuality } from '../models/soil-parameters.model';
 import { API_CONFIG, DEFAULT_API_CONFIG } from './api.config';
 
 /**
- * Create/Update land DTO matching API expectations
+ * DTO pour les coordonnées GeoJSON
+ */
+export interface LocationDto {
+  type: 'Point';
+  coordinates: [number, number]; // [longitude, latitude]
+}
+
+/**
+ * DTO pour l'adresse d'une terre
+ */
+export interface AddressDto {
+  city: string;
+  region: string;
+  commune: string;
+  village?: string;
+  fullAddress?: string;
+  country?: string;
+}
+
+/**
+ * DTO pour les valeurs NPK
+ */
+export interface NPKDto {
+  nitrogen: number;
+  phosphorus: number;
+  potassium: number;
+}
+
+/**
+ * DTO pour les paramètres du sol
+ */
+export interface SoilParametersDto {
+  ph: number;
+  npk: NPKDto;
+  texture: SoilTexture;
+  moisture: number;
+  drainage: DrainageQuality;
+  organicMatter?: number;
+  salinity?: number;
+  cec?: number;
+}
+
+/**
+ * DTO pour créer une nouvelle terre
  */
 export interface CreateLandDto {
   title: string;
@@ -14,33 +57,27 @@ export interface CreateLandDto {
   surfaceHectares: number;
   type: LandType;
   price: number;
-  location: {
-    type: 'Point';
-    coordinates: [number, number]; // [longitude, latitude]
-  };
-  address: {
-    region: string;
-    city: string;
-    district?: string;
-  };
-  soilParameters: {
-    ph: number;
-    nitrogen: number;
-    phosphorus: number;
-    potassium: number;
-    texture: string;
-    moisture?: number;
-    organicMatter?: number;
-  };
+  priceUnit?: string;
+  location: LocationDto;
+  address?: AddressDto;
+  soilParameters?: SoilParametersDto;
   images?: string[];
 }
 
+/**
+ * DTO pour mettre à jour une terre
+ */
 export interface UpdateLandDto {
   title?: string;
   description?: string;
+  surfaceHectares?: number;
+  type?: LandType;
   price?: number;
+  priceUnit?: string;
+  location?: LocationDto;
+  address?: AddressDto;
+  soilParameters?: SoilParametersDto;
   status?: LandStatus;
-  isAvailable?: boolean;
   images?: string[];
 }
 

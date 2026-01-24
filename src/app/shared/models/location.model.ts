@@ -9,6 +9,7 @@ export interface Location {
 
 /**
  * Address details for a land parcel
+ * Matches backend AddressDto structure
  */
 export interface Address {
   city: string;
@@ -18,6 +19,11 @@ export interface Address {
   fullAddress?: string;
   country?: string;
 }
+
+/**
+ * Default country value
+ */
+export const DEFAULT_COUNTRY = 'Sénégal';
 
 /**
  * Helper function to get latitude from Location

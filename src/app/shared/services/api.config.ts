@@ -18,5 +18,5 @@ export const API_CONFIG = new InjectionToken<ApiConfig>('API_CONFIG');
 export const DEFAULT_API_CONFIG: ApiConfig = {
   baseUrl: 'https://petalia-soil-api.vercel.app', // Petalia Soil API
   timeout: 30000,
-  useMockData: true // Set to false to use real API
+  useMockData: false // Using real API
 };

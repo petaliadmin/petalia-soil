@@ -22,6 +22,21 @@ export const routes: Routes = [
     title: 'Carte interactive - Petalia Soil'
   },
   {
+    path: 'tools',
+    loadComponent: () => import('./features/agriculture-tools/tools-page/tools-page.component').then(m => m.ToolsPageComponent),
+    title: 'Outils Agricoles - Petalia Soil'
+  },
+  {
+    path: 'tools/map',
+    loadComponent: () => import('./features/agriculture-tools/senegal-map/senegal-map.component').then(m => m.SenegalMapComponent),
+    title: 'Carte Agricole du Sénégal - Petalia Soil'
+  },
+  {
+    path: 'tools/recommendations',
+    loadComponent: () => import('./features/agriculture-tools/crop-recommendations/crop-recommendations.component').then(m => m.CropRecommendationsComponent),
+    title: 'Recommandations de Cultures - Petalia Soil'
+  },
+  {
     path: 'admin',
     loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes)
   },

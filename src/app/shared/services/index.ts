@@ -4,3 +4,5 @@ export * from './theme.service';
 export * from './auth.service';
 export * from './admin-land.service';
 export * from './user.service';
+export * from './crop-recommendation.service';
+export * from './crop-data';

@@ -4,3 +4,5 @@ export * from './soil-parameters.model';
 export * from './owner.model';
 export * from './land.model';
 export * from './auth.model';
+export * from './crop.model';
+export * from './senegal-zones.model';

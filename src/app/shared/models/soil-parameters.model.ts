@@ -1,10 +1,10 @@
 /**
- * Soil texture types
+ * Soil texture types (matching backend enum - lowercase values)
  */
 export type SoilTexture = 'sandy' | 'clay' | 'loamy' | 'silty' | 'peaty' | 'chalky';
 
 /**
- * Drainage quality levels
+ * Drainage quality levels (matching backend enum - lowercase values)
  */
 export type DrainageQuality = 'excellent' | 'good' | 'moderate' | 'poor';
 
@@ -64,6 +64,16 @@ export const DRAINAGE_LABELS: Record<DrainageQuality, string> = {
   moderate: 'Moyen',
   poor: 'Faible'
 };
+
+/**
+ * Drainage qualities for form select options
+ */
+export const DRAINAGE_QUALITIES: { value: DrainageQuality; label: string }[] = [
+  { value: 'excellent', label: 'Excellent' },
+  { value: 'good', label: 'Bon' },
+  { value: 'moderate', label: 'Moyen' },
+  { value: 'poor', label: 'Faible' }
+];
 
 /**
  * Get pH level description

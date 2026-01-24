@@ -8,25 +8,87 @@ import {
   LandSummary,
   LandFilters,
   NearbySearchParams,
-  CropRecommendation
+  CropRecommendation,
+  LandStatus
 } from '../models/land.model';
 import { getLatitude, getLongitude } from '../models/location.model';
+import { SoilParameters, SoilTexture, DrainageQuality } from '../models/soil-parameters.model';
 import { API_CONFIG, DEFAULT_API_CONFIG } from './api.config';
 import { MOCK_LANDS, getUniqueRegions, getUniqueCrops } from './mock-data';
 
 /**
- * Response structure from API
+ * Response structure from API (actual format from petalia-soil-api)
  */
-interface ApiResponse<T> {
-  success: boolean;
+interface ApiListResponse<T> {
   data: T;
-  message?: string;
-  pagination?: {
-    total: number;
-    page: number;
-    limit: number;
-    pages: number;
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+/**
+ * Single item response (may be direct data or wrapped)
+ */
+interface ApiSingleResponse<T> {
+  data?: T;
+  success?: boolean;
+}
+
+/**
+ * Raw land data from API (before transformation)
+ */
+interface ApiLandRaw {
+  _id: string;
+  title: string;
+  description: string;
+  surface?: number;
+  surfaceHectares?: number;
+  type: 'RENT' | 'SALE';
+  price: number;
+  priceUnit?: string;
+  isAvailable?: boolean;
+  status?: LandStatus;
+  location: {
+    type: 'Point';
+    coordinates: [number, number];
   };
+  address?: {
+    region?: string;
+    city?: string;
+    commune?: string;
+    village?: string;
+    fullAddress?: string;
+    country?: string;
+  };
+  region?: string;
+  city?: string;
+  soilParameters?: {
+    ph: number;
+    nitrogen?: number;
+    phosphorus?: number;
+    potassium?: number;
+    npk?: {
+      nitrogen: number;
+      phosphorus: number;
+      potassium: number;
+    };
+    texture: string;
+    moisture: number;
+    organicMatter?: number;
+    drainage?: string;
+    salinity?: number;
+    cec?: number;
+  };
+  recommendedCrops?: CropRecommendation[];
+  cultureHistory?: any[];
+  owner: any;
+  images?: string[];
+  thumbnail?: string;
+  views?: number;
+  favorites?: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 @Injectable({
@@ -88,11 +150,13 @@ export class LandService {
       );
     }
 
-    return this.http.get<ApiResponse<Land[]>>(`${this.config.baseUrl}/lands`).pipe(
+    return this.http.get<ApiListResponse<ApiLandRaw[]>>(`${this.config.baseUrl}/lands`).pipe(
       map(response => {
-        this.landsSignal.set(response.data);
+        const rawData = response.data ?? [];
+        const lands = this.transformApiLands(rawData);
+        this.landsSignal.set(lands);
         this.loadingSignal.set(false);
-        return response.data;
+        return lands;
       }),
       catchError(error => {
         this.errorSignal.set('Erreur lors du chargement des terres');
@@ -121,11 +185,14 @@ export class LandService {
       );
     }
 
-    return this.http.get<ApiResponse<Land>>(`${this.config.baseUrl}/lands/${id}`).pipe(
+    return this.http.get<ApiLandRaw | ApiSingleResponse<ApiLandRaw>>(`${this.config.baseUrl}/lands/${id}`).pipe(
       map(response => {
-        this.selectedLandSignal.set(response.data);
+        // Handle both direct response and wrapped response formats
+        const rawData = 'data' in response && response.data ? response.data : response as ApiLandRaw;
+        const land = this.transformApiLand(rawData);
+        this.selectedLandSignal.set(land);
         this.loadingSignal.set(false);
-        return response.data;
+        return land;
       }),
       catchError(error => {
         this.errorSignal.set('Terre non trouvée');
@@ -168,13 +235,14 @@ export class LandService {
       .set('longitude', params.longitude.toString())
       .set('radius', params.radiusKm.toString());
 
-    return this.http.get<ApiResponse<Land[]>>(
+    return this.http.get<ApiListResponse<ApiLandRaw[]>>(
       `${this.config.baseUrl}/lands/nearby`,
       { params: httpParams }
     ).pipe(
       map(response => {
         this.loadingSignal.set(false);
-        return response.data;
+        const rawData = response.data ?? [];
+        return this.transformApiLands(rawData);
       }),
       catchError(error => {
         this.errorSignal.set('Erreur lors de la recherche');
@@ -193,10 +261,16 @@ export class LandService {
       return of(land?.recommendedCrops || []).pipe(delay(200));
     }
 
-    return this.http.get<ApiResponse<CropRecommendation[]>>(
+    return this.http.get<CropRecommendation[] | ApiListResponse<CropRecommendation[]>>(
       `${this.config.baseUrl}/lands/${landId}/recommendations`
     ).pipe(
-      map(response => response.data),
+      map(response => {
+        // Handle both direct array and wrapped response formats
+        if (Array.isArray(response)) {
+          return response;
+        }
+        return response.data ?? [];
+      }),
       catchError(() => of([]))
     );
   }
@@ -313,5 +387,99 @@ export class LandService {
 
   private toRad(deg: number): number {
     return deg * (Math.PI / 180);
+  }
+
+  /**
+   * Transform raw API data to frontend Land model
+   */
+  private transformApiLand(raw: ApiLandRaw): Land {
+    // Handle status - convert from isAvailable boolean if needed
+    let status: LandStatus = 'AVAILABLE';
+    if (raw.status) {
+      status = raw.status;
+    } else if (raw.isAvailable !== undefined) {
+      status = raw.isAvailable ? 'AVAILABLE' : 'SOLD';
+    }
+
+    // Handle surface - support both 'surface' and 'surfaceHectares' fields
+    const surface = raw.surface ?? raw.surfaceHectares ?? 0;
+
+    // Default soil parameters
+    const defaultSoilParams = {
+      ph: 7,
+      npk: { nitrogen: 0, phosphorus: 0, potassium: 0 },
+      texture: 'loamy' as SoilTexture,
+      moisture: 50,
+      drainage: 'good' as DrainageQuality
+    };
+
+    // Build soil parameters if available
+    let soilParameters: SoilParameters = defaultSoilParams;
+    if (raw.soilParameters) {
+      // Handle NPK - convert from flat fields to nested object if needed
+      const npk = raw.soilParameters.npk ?? {
+        nitrogen: raw.soilParameters.nitrogen ?? 0,
+        phosphorus: raw.soilParameters.phosphorus ?? 0,
+        potassium: raw.soilParameters.potassium ?? 0
+      };
+
+      // Normalize texture to lowercase (backend uses lowercase enum values)
+      const texture = (raw.soilParameters.texture?.toLowerCase() ?? 'loamy') as SoilTexture;
+
+      // Normalize drainage to lowercase
+      const drainage = (raw.soilParameters.drainage?.toLowerCase() ?? 'good') as DrainageQuality;
+
+      soilParameters = {
+        ph: raw.soilParameters.ph ?? 7,
+        npk,
+        texture,
+        moisture: raw.soilParameters.moisture ?? 50,
+        organicMatter: raw.soilParameters.organicMatter,
+        drainage,
+        salinity: raw.soilParameters.salinity,
+        cec: raw.soilParameters.cec
+      };
+    }
+
+    // Handle address - build from flat fields if nested address not available
+    const address = {
+      region: raw.address?.region ?? raw.region ?? 'Non spécifié',
+      city: raw.address?.city ?? raw.city ?? '',
+      commune: raw.address?.commune ?? raw.address?.city ?? '',
+      village: raw.address?.village,
+      fullAddress: raw.address?.fullAddress ?? `${raw.city ?? ''}, ${raw.region ?? ''}`,
+      country: raw.address?.country ?? 'Sénégal'
+    };
+
+    return {
+      _id: raw._id,
+      title: raw.title,
+      description: raw.description,
+      surface,
+      type: raw.type,
+      price: raw.price,
+      priceUnit: raw.priceUnit ?? 'FCFA',
+      pricePerHectare: surface > 0 ? Math.round(raw.price / surface) : undefined,
+      status,
+      location: raw.location,
+      address,
+      soilParameters,
+      recommendedCrops: raw.recommendedCrops ?? [],
+      cultureHistory: raw.cultureHistory ?? [],
+      owner: raw.owner,
+      images: raw.images ?? [],
+      thumbnail: raw.thumbnail,
+      views: raw.views ?? 0,
+      favorites: raw.favorites ?? 0,
+      createdAt: raw.createdAt,
+      updatedAt: raw.updatedAt
+    };
+  }
+
+  /**
+   * Transform array of raw API lands
+   */
+  private transformApiLands(rawLands: ApiLandRaw[]): Land[] {
+    return rawLands.map(raw => this.transformApiLand(raw));
   }
 }

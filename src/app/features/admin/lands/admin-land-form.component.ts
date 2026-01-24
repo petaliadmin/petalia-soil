@@ -5,7 +5,7 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { LandService } from '../../../shared/services/land.service';
 import { AdminLandService, CreateLandDto, UpdateLandDto } from '../../../shared/services/admin-land.service';
 import { Land, LandType, LandStatus } from '../../../shared/models/land.model';
-import { SOIL_TEXTURES } from '../../../shared/models/soil-parameters.model';
+import { SOIL_TEXTURES, DRAINAGE_QUALITIES } from '../../../shared/models/soil-parameters.model';
 
 interface UploadedImage {
   id: string;
@@ -203,19 +203,65 @@ interface UploadedImage {
             <!-- City -->
             <div>
               <label for="city" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Ville / Commune *
+                Ville *
               </label>
               <input
                 type="text"
                 id="city"
                 formControlName="city"
                 class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
-                placeholder="Ex: Richard-Toll"
+                placeholder="Ex: Rufisque"
                 [class.border-red-500]="isFieldInvalid('city')"
               />
               @if (isFieldInvalid('city')) {
                 <p class="mt-1 text-sm text-red-500">La ville est requise</p>
               }
+            </div>
+
+            <!-- Commune -->
+            <div>
+              <label for="commune" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                Commune *
+              </label>
+              <input
+                type="text"
+                id="commune"
+                formControlName="commune"
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
+                placeholder="Ex: Rufisque"
+                [class.border-red-500]="isFieldInvalid('commune')"
+              />
+              @if (isFieldInvalid('commune')) {
+                <p class="mt-1 text-sm text-red-500">La commune est requise</p>
+              }
+            </div>
+
+            <!-- Village -->
+            <div>
+              <label for="village" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                Village
+              </label>
+              <input
+                type="text"
+                id="village"
+                formControlName="village"
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
+                placeholder="Ex: Sangalkam"
+              />
+            </div>
+
+            <!-- Full Address -->
+            <div class="md:col-span-2">
+              <label for="fullAddress" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                Adresse complète
+              </label>
+              <input
+                type="text"
+                id="fullAddress"
+                formControlName="fullAddress"
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
+                placeholder="Ex: Route de Sangalkam, Rufisque"
+              />
             </div>
 
             <!-- Latitude -->
@@ -288,6 +334,7 @@ interface UploadedImage {
                 min="0"
                 class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
                 placeholder="Ex: 45"
+                [class.border-red-500]="isFieldInvalid('nitrogen')"
               />
             </div>
 
@@ -303,6 +350,7 @@ interface UploadedImage {
                 min="0"
                 class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
                 placeholder="Ex: 30"
+                [class.border-red-500]="isFieldInvalid('phosphorus')"
               />
             </div>
 
@@ -317,7 +365,8 @@ interface UploadedImage {
                 formControlName="potassium"
                 min="0"
                 class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
-                placeholder="Ex: 120"
+                placeholder="Ex: 150"
+                [class.border-red-500]="isFieldInvalid('potassium')"
               />
             </div>
 
@@ -340,7 +389,7 @@ interface UploadedImage {
             <!-- Moisture -->
             <div>
               <label for="moisture" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Humidité (%)
+                Humidité (%) * <span class="text-gray-400">(0-100)</span>
               </label>
               <input
                 type="number"
@@ -350,7 +399,24 @@ interface UploadedImage {
                 max="100"
                 class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
                 placeholder="Ex: 35"
+                [class.border-red-500]="isFieldInvalid('moisture')"
               />
+            </div>
+
+            <!-- Drainage -->
+            <div>
+              <label for="drainage" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                Qualité du drainage *
+              </label>
+              <select
+                id="drainage"
+                formControlName="drainage"
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-agri-500"
+              >
+                @for (drainage of drainageQualities; track drainage.value) {
+                  <option [value]="drainage.value">{{ drainage.label }}</option>
+                }
+              </select>
             </div>
 
             <!-- Organic Matter -->
@@ -363,10 +429,41 @@ interface UploadedImage {
                 id="organicMatter"
                 formControlName="organicMatter"
                 min="0"
-                max="100"
                 step="0.1"
                 class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
-                placeholder="Ex: 2.5"
+                placeholder="Ex: 3.5"
+              />
+            </div>
+
+            <!-- Salinity -->
+            <div>
+              <label for="salinity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                Salinité (dS/m)
+              </label>
+              <input
+                type="number"
+                id="salinity"
+                formControlName="salinity"
+                min="0"
+                step="0.1"
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
+                placeholder="Ex: 0.5"
+              />
+            </div>
+
+            <!-- CEC -->
+            <div>
+              <label for="cec" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                CEC (meq/100g)
+              </label>
+              <input
+                type="number"
+                id="cec"
+                formControlName="cec"
+                min="0"
+                step="0.1"
+                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
+                placeholder="Ex: 15"
               />
             </div>
           </div>
@@ -541,25 +638,37 @@ export class AdminLandFormComponent implements OnInit {
   ];
 
   soilTextures = SOIL_TEXTURES;
+  drainageQualities = DRAINAGE_QUALITIES;
 
   form: FormGroup = this.fb.group({
+    // Informations générales
     title: ['', [Validators.required, Validators.minLength(5)]],
     description: ['', [Validators.required, Validators.minLength(20)]],
     type: ['RENT', Validators.required],
     status: ['AVAILABLE'],
-    surface: [null, [Validators.required, Validators.min(0.1)]],
+    surface: [null, [Validators.required, Validators.min(0)]],
     price: [null, [Validators.required, Validators.min(0)]],
-    region: ['', Validators.required],
-    city: ['', Validators.required],
+    priceUnit: ['FCFA'],
+    // Localisation - Coordonnées
     latitude: [null, [Validators.required, Validators.min(-90), Validators.max(90)]],
     longitude: [null, [Validators.required, Validators.min(-180), Validators.max(180)]],
+    // Adresse
+    city: ['', Validators.required],
+    region: ['', Validators.required],
+    commune: ['', Validators.required],
+    village: [''],
+    fullAddress: [''],
+    // Paramètres du sol
     ph: [6.5, [Validators.required, Validators.min(0), Validators.max(14)]],
     nitrogen: [null, [Validators.required, Validators.min(0)]],
     phosphorus: [null, [Validators.required, Validators.min(0)]],
     potassium: [null, [Validators.required, Validators.min(0)]],
     texture: ['loamy', Validators.required],
-    moisture: [null],
-    organicMatter: [null]
+    moisture: [null, [Validators.required, Validators.min(0), Validators.max(100)]],
+    drainage: ['good', Validators.required],
+    organicMatter: [null, [Validators.min(0)]],
+    salinity: [null, [Validators.min(0)]],
+    cec: [null, [Validators.min(0)]]
   });
 
   ngOnInit(): void {
@@ -575,23 +684,34 @@ export class AdminLandFormComponent implements OnInit {
     this.landService.getLandById(id).subscribe(land => {
       if (land) {
         this.form.patchValue({
+          // Informations générales
           title: land.title,
           description: land.description,
           type: land.type,
           status: land.status,
           surface: land.surface,
           price: land.price,
-          region: land.address.region,
-          city: land.address.city,
+          priceUnit: land.priceUnit || 'FCFA',
+          // Localisation
           latitude: land.location.coordinates[1],
           longitude: land.location.coordinates[0],
+          // Adresse
+          city: land.address.city,
+          region: land.address.region,
+          commune: land.address.commune,
+          village: land.address.village || '',
+          fullAddress: land.address.fullAddress || '',
+          // Paramètres du sol
           ph: land.soilParameters.ph,
           nitrogen: land.soilParameters.npk.nitrogen,
           phosphorus: land.soilParameters.npk.phosphorus,
           potassium: land.soilParameters.npk.potassium,
           texture: land.soilParameters.texture,
           moisture: land.soilParameters.moisture,
-          organicMatter: land.soilParameters.organicMatter
+          drainage: land.soilParameters.drainage,
+          organicMatter: land.soilParameters.organicMatter,
+          salinity: land.soilParameters.salinity,
+          cec: land.soilParameters.cec
         });
 
         // Load existing images
@@ -730,11 +850,51 @@ export class AdminLandFormComponent implements OnInit {
     this.adminLandService.clearMessages();
     const formValue = this.form.value;
 
+    // Build soil parameters with nested NPK
+    const soilParameters = {
+      ph: formValue.ph,
+      npk: {
+        nitrogen: formValue.nitrogen,
+        phosphorus: formValue.phosphorus,
+        potassium: formValue.potassium
+      },
+      texture: formValue.texture,
+      moisture: formValue.moisture,
+      drainage: formValue.drainage,
+      ...(formValue.organicMatter != null && { organicMatter: formValue.organicMatter }),
+      ...(formValue.salinity != null && { salinity: formValue.salinity }),
+      ...(formValue.cec != null && { cec: formValue.cec })
+    };
+
+    // Build address
+    const address = {
+      city: formValue.city,
+      region: formValue.region,
+      commune: formValue.commune,
+      ...(formValue.village && { village: formValue.village }),
+      ...(formValue.fullAddress && { fullAddress: formValue.fullAddress }),
+      country: 'Sénégal'
+    };
+
+    // Build location
+    const location = {
+      type: 'Point' as const,
+      coordinates: [formValue.longitude, formValue.latitude] as [number, number]
+    };
+
     if (this.isEditMode()) {
       const updateData: UpdateLandDto = {
         title: formValue.title,
+        description: formValue.description,
+        surfaceHectares: formValue.surface,
+        type: formValue.type,
         price: formValue.price,
-        status: formValue.status
+        priceUnit: formValue.priceUnit,
+        location,
+        address,
+        soilParameters,
+        status: formValue.status,
+        images: this.getImageUrls()
       };
 
       this.adminLandService.updateLand(this.landId()!, updateData).subscribe({
@@ -749,23 +909,10 @@ export class AdminLandFormComponent implements OnInit {
         surfaceHectares: formValue.surface,
         type: formValue.type,
         price: formValue.price,
-        location: {
-          type: 'Point',
-          coordinates: [formValue.longitude, formValue.latitude]
-        },
-        address: {
-          region: formValue.region,
-          city: formValue.city
-        },
-        soilParameters: {
-          ph: formValue.ph,
-          nitrogen: formValue.nitrogen,
-          phosphorus: formValue.phosphorus,
-          potassium: formValue.potassium,
-          texture: formValue.texture,
-          moisture: formValue.moisture,
-          organicMatter: formValue.organicMatter
-        },
+        priceUnit: formValue.priceUnit,
+        location,
+        address,
+        soilParameters,
         images: this.getImageUrls()
       };
 
