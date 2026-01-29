@@ -9,8 +9,7 @@ export type UserRole = 'ADMIN' | 'OWNER' | 'FARMER';
  */
 export interface Owner {
   _id: string;
-  firstName: string;
-  lastName: string;
+  fullName: string;
   email: string;
   phone: string;
   whatsapp?: string;
@@ -31,12 +30,6 @@ export interface ContactInfo {
   preferredContact?: 'phone' | 'email' | 'whatsapp';
 }
 
-/**
- * Get owner's full name
- */
-export function getOwnerFullName(owner: Owner): string {
-  return `${owner.firstName} ${owner.lastName}`;
-}
 
 /**
  * Get WhatsApp link with pre-filled message

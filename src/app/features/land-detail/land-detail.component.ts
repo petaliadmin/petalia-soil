@@ -25,7 +25,7 @@ import {
   DRAINAGE_LABELS,
   getPhDescription
 } from '../../shared/models/soil-parameters.model';
-import { Owner, getOwnerFullName, getWhatsAppLink } from '../../shared/models/owner.model';
+import { Owner, getWhatsAppLink } from '../../shared/models/owner.model';
 import { getLatitude, getLongitude } from '../../shared/models/location.model';
 
 @Component({
@@ -385,15 +385,15 @@ import { getLatitude, getLongitude } from '../../shared/models/location.model';
                   <div class="flex items-center gap-4 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
                     <div class="w-14 h-14 rounded-full bg-agri-100 dark:bg-agri-900/50 flex items-center justify-center">
                       @if (owner()!.avatar) {
-                        <img [src]="owner()!.avatar" [alt]="getOwnerName()" class="w-full h-full rounded-full object-cover" />
+                        <img [src]="owner()!.avatar" [alt]="owner()!.fullName" class="w-full h-full rounded-full object-cover" />
                       } @else {
                         <span class="text-xl font-bold text-agri-600 dark:text-agri-400">
-                          {{ owner()!.firstName[0] }}{{ owner()!.lastName[0] }}
+                          {{ owner()!.fullName }}
                         </span>
                       }
                     </div>
                     <div>
-                      <h3 class="font-semibold text-gray-900 dark:text-white">{{ getOwnerName() }}</h3>
+                      <h3 class="font-semibold text-gray-900 dark:text-white">{{ owner()!.fullName }}</h3>
                       @if (owner()!.verified) {
                         <div class="flex items-center gap-1 text-agri-600 dark:text-agri-400">
                           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -630,10 +630,6 @@ export class LandDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     return labels[suitability] || suitability;
   }
 
-  getOwnerName(): string {
-    const ownerData = this.owner();
-    return ownerData ? getOwnerFullName(ownerData) : '';
-  }
 
   getWhatsAppUrl(): string {
     const ownerData = this.owner();

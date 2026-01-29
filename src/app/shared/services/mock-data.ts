@@ -7,8 +7,7 @@ import { Owner } from '../models/owner.model';
 export const MOCK_OWNERS: Owner[] = [
   {
     _id: 'owner-1',
-    firstName: 'Amadou',
-    lastName: 'Diallo',
+    fullName: 'Amadou',
     email: 'amadou.diallo@email.com',
     phone: '+221 77 123 45 67',
     whatsapp: '+221771234567',
@@ -18,8 +17,7 @@ export const MOCK_OWNERS: Owner[] = [
   },
   {
     _id: 'owner-2',
-    firstName: 'Fatou',
-    lastName: 'Ndiaye',
+    fullName: 'Fatou',
     email: 'fatou.ndiaye@email.com',
     phone: '+221 78 234 56 78',
     whatsapp: '+221782345678',
@@ -29,8 +27,7 @@ export const MOCK_OWNERS: Owner[] = [
   },
   {
     _id: 'owner-3',
-    firstName: 'Moussa',
-    lastName: 'Sow',
+    fullName: 'Moussa',
     email: 'moussa.sow@email.com',
     phone: '+221 76 345 67 89',
     whatsapp: '+221763456789',
@@ -40,8 +37,7 @@ export const MOCK_OWNERS: Owner[] = [
   },
   {
     _id: 'owner-4',
-    firstName: 'Aissatou',
-    lastName: 'Ba',
+    fullName: 'Aissatou',
     email: 'aissatou.ba@email.com',
     phone: '+221 77 456 78 90',
     whatsapp: '+221774567890',
