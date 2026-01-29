@@ -43,7 +43,7 @@ export const MOCK_OWNERS: Owner[] = [
     whatsapp: '+221774567890',
     role: 'OWNER',
     verified: true,
-    createdAt: '2024-04-05T11:45:00Z'
+    createdAt: '2024-04-05T11:45:00Z' 
   }
 ];
 
