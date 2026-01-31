@@ -13,10 +13,8 @@ import { RouterLink } from '@angular/router';
           <!-- Brand -->
           <div class="lg:col-span-1">
             <a routerLink="/" class="flex items-center gap-3 mb-4">
-              <div class="w-10 h-10 bg-gradient-to-br from-agri-500 to-agri-600 rounded-xl flex items-center justify-center">
-                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
+              <div class="w-10 h-10 bg-white from-agri-500 to-agri-600 rounded-xl flex items-center justify-center">
+                <img  src="logo.png" [alt]="'Pétalia'"/>
               </div>
               <div>
                 <span class="text-xl font-display font-bold text-white">Petalia</span>
@@ -93,13 +91,13 @@ import { RouterLink } from '@angular/router';
                 <svg class="w-5 h-5 text-agri-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
-                <span>contact&#64;petalia-soil.com</span>
+                <span>contact&#64;petalia.sn</span>
               </li>
               <li class="flex items-center gap-3 text-gray-400">
                 <svg class="w-5 h-5 text-agri-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                 </svg>
-                <span>+221 77 123 45 67</span>
+                <span>+221 76 905 58 52</span>
               </li>
               <li class="flex items-start gap-3 text-gray-400">
                 <svg class="w-5 h-5 text-agri-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -118,7 +116,7 @@ import { RouterLink } from '@angular/router';
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div class="flex flex-col md:flex-row items-center justify-between gap-4">
             <p class="text-gray-500 text-sm">
-              &copy; {{ currentYear }} Petalia Soil. Tous droits reserves.
+              &copy; {{ currentYear }} Petalia . Tous droits reserves.
             </p>
             <div class="flex gap-6 text-sm">
               <a href="#" class="text-gray-500 hover:text-gray-300 transition-colors">Conditions d'utilisation</a>

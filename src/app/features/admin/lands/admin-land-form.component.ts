@@ -264,6 +264,43 @@ interface UploadedImage {
               />
             </div>
 
+            <!-- GPS Coordinates Section -->
+            <div class="md:col-span-2">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Coordonnees GPS</span>
+                <button
+                  type="button"
+                  (click)="getCurrentLocation()"
+                  [disabled]="geoLoading()"
+                  class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-agri-600 dark:text-agri-400 bg-agri-50 dark:bg-agri-900/20 rounded-lg hover:bg-agri-100 dark:hover:bg-agri-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  @if (geoLoading()) {
+                    <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Localisation...
+                  } @else {
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Ma position actuelle
+                  }
+                </button>
+              </div>
+              @if (geoError()) {
+                <div class="mb-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <p class="text-sm text-red-600 dark:text-red-400">{{ geoError() }}</p>
+                </div>
+              }
+              @if (geoSuccess()) {
+                <div class="mb-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                  <p class="text-sm text-green-600 dark:text-green-400">{{ geoSuccess() }}</p>
+                </div>
+              }
+            </div>
+
             <!-- Latitude -->
             <div>
               <label for="latitude" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
@@ -631,6 +668,11 @@ export class AdminLandFormComponent implements OnInit {
   showUrlInput = signal(false);
   imageUrl = '';
 
+  // Geolocation state
+  geoLoading = signal(false);
+  geoError = signal<string | null>(null);
+  geoSuccess = signal<string | null>(null);
+
   regions = [
     'Dakar', 'Diourbel', 'Fatick', 'Kaffrine', 'Kaolack',
     'Kédougou', 'Kolda', 'Louga', 'Matam', 'Saint-Louis',
@@ -733,6 +775,54 @@ export class AdminLandFormComponent implements OnInit {
   isFieldInvalid(field: string): boolean {
     const control = this.form.get(field);
     return control ? control.invalid && control.touched : false;
+  }
+
+  // Geolocation methods
+  getCurrentLocation(): void {
+    if (!navigator.geolocation) {
+      this.geoError.set('La geolocalisation n\'est pas supportee par votre navigateur.');
+      return;
+    }
+
+    this.geoLoading.set(true);
+    this.geoError.set(null);
+    this.geoSuccess.set(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        this.form.patchValue({
+          latitude: parseFloat(latitude.toFixed(6)),
+          longitude: parseFloat(longitude.toFixed(6))
+        });
+        this.geoLoading.set(false);
+        this.geoSuccess.set(`Position detectee: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+
+        // Clear success message after 5 seconds
+        setTimeout(() => this.geoSuccess.set(null), 5000);
+      },
+      (error) => {
+        this.geoLoading.set(false);
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            this.geoError.set('Acces a la localisation refuse. Veuillez autoriser l\'acces dans les parametres de votre navigateur.');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            this.geoError.set('Position non disponible. Verifiez que le GPS est active.');
+            break;
+          case error.TIMEOUT:
+            this.geoError.set('Delai d\'attente depasse. Veuillez reessayer.');
+            break;
+          default:
+            this.geoError.set('Erreur lors de la recuperation de la position.');
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
   }
 
   // Image upload methods

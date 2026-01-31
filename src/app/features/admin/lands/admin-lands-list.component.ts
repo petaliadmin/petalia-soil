@@ -358,15 +358,32 @@ export class AdminLandsListComponent implements OnInit {
 
   filteredLands = signal<Land[]>([]);
   landToDelete = signal<Land | null>(null);
+  private allLands = signal<Land[]>([]);
 
   ngOnInit(): void {
-    this.landService.loadLands().subscribe(() => {
+    this.loadLands();
+  }
+
+  /**
+   * Load lands from API (my-lands for owners, all for admins)
+   */
+  private loadLands(): void {
+    const currentUser = this.authService.user();
+    const isAdmin = currentUser?.role === 'ADMIN';
+
+    // Use my-lands endpoint for owners, all lands for admins
+    const landsObservable = isAdmin
+      ? this.landService.loadLands()
+      : this.landService.getMyLands();
+
+    landsObservable.subscribe(lands => {
+      this.allLands.set(lands);
       this.filterLands();
     });
   }
 
   filterLands(): void {
-    let lands = this.landService.lands();
+    let lands = this.allLands();
 
     // Apply search
     if (this.searchQuery) {
@@ -425,10 +442,8 @@ export class AdminLandsListComponent implements OnInit {
     this.adminLandService.deleteLand(land._id).subscribe({
       next: () => {
         this.landToDelete.set(null);
-        // Reload lands
-        this.landService.loadLands().subscribe(() => {
-          this.filterLands();
-        });
+        // Reload lands using the correct endpoint
+        this.loadLands();
       },
       error: () => {
         // Error handled by service

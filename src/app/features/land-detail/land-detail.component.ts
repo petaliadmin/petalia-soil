@@ -11,6 +11,8 @@ import {
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LandService } from '../../shared/services/land.service';
+import { FarmerService } from '../../shared/services/farmer.service';
+import { AuthService } from '../../shared/services/auth.service';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { SoilGaugeComponent } from '../../shared/components/soil-gauge/soil-gauge.component';
 import {
@@ -492,6 +494,8 @@ export class LandDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private landService = inject(LandService);
+  private farmerService = inject(FarmerService);
+  private authService = inject(AuthService);
 
   loading = signal(true);
   error = signal<string | null>(null);
@@ -534,6 +538,10 @@ export class LandDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.landService.getLandById(id).subscribe(land => {
       if (land) {
         this.land.set(land);
+        // Track visit for farmers
+        if (this.authService.isAuthenticated() && this.authService.user()?.role === 'FARMER') {
+          this.farmerService.markAsVisited(land._id);
+        }
       } else {
         this.error.set('Cette terre n\'existe pas ou a ete supprimee');
       }

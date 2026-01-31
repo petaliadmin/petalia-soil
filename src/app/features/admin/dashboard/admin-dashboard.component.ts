@@ -326,7 +326,15 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadData(): void {
-    this.landService.loadLands().subscribe(lands => {
+    const currentUser = this.authService.user();
+    const isAdmin = currentUser?.role === 'ADMIN';
+
+    // Use my-lands endpoint for owners, all lands for admins
+    const landsObservable = isAdmin
+      ? this.landService.loadLands()
+      : this.landService.getMyLands();
+
+    landsObservable.subscribe(lands => {
       // Calculate stats
       this.stats.set({
         totalLands: lands.length,

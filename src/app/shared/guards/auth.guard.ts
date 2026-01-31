@@ -74,6 +74,32 @@ export const ownerGuard: CanActivateFn = (
 };
 
 /**
+ * Guard to protect routes that require farmer role
+ */
+export const farmerGuard: CanActivateFn = (
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot
+) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (!authService.isAuthenticated()) {
+    router.navigate(['/admin/login'], {
+      queryParams: { returnUrl: state.url }
+    });
+    return false;
+  }
+
+  const user = authService.user();
+  if (user?.role !== 'FARMER') {
+    router.navigate(['/admin/dashboard']);
+    return false;
+  }
+
+  return true;
+};
+
+/**
  * Guard that redirects authenticated users away from login page
  */
 export const noAuthGuard: CanActivateFn = () => {
@@ -81,6 +107,12 @@ export const noAuthGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   if (authService.isAuthenticated()) {
+    // Redirect based on role
+    const user = authService.user();
+    if (user?.role === 'FARMER') {
+      router.navigate(['/admin/farmer']);
+      return false;
+    }
     router.navigate(['/admin/dashboard']);
     return false;
   }

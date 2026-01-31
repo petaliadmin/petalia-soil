@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, adminGuard, noAuthGuard } from '../../shared/guards/auth.guard';
+import { authGuard, adminGuard, ownerGuard, farmerGuard, noAuthGuard } from '../../shared/guards/auth.guard';
 
 export const adminRoutes: Routes = [
   {
@@ -14,10 +14,24 @@ export const adminRoutes: Routes = [
     canActivate: [noAuthGuard],
     title: 'Inscription - Admin Petalia Soil'
   },
+  // Farmer dashboard (separate from owner/admin)
+  {
+    path: 'farmer',
+    loadComponent: () => import('./layout/admin-layout.component').then(m => m.AdminLayoutComponent),
+    canActivate: [farmerGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./farmer-dashboard/farmer-dashboard.component').then(m => m.FarmerDashboardComponent),
+        title: 'Mon espace - Petalia Soil'
+      }
+    ]
+  },
+  // Owner/Admin dashboard
   {
     path: '',
     loadComponent: () => import('./layout/admin-layout.component').then(m => m.AdminLayoutComponent),
-    canActivate: [authGuard],
+    canActivate: [ownerGuard],
     children: [
       {
         path: 'dashboard',

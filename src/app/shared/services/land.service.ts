@@ -253,6 +253,44 @@ export class LandService {
   }
 
   /**
+   * Get lands owned by the current authenticated user
+   * Uses GET /lands/my-lands endpoint
+   */
+  getMyLands(): Observable<Land[]> {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    if (this.config.useMockData) {
+      // In mock mode, return all lands (no owner filtering)
+      return of(MOCK_LANDS).pipe(
+        delay(500),
+        map(lands => {
+          this.loadingSignal.set(false);
+          return lands;
+        })
+      );
+    }
+
+    return this.http.get<ApiListResponse<ApiLandRaw[]> | ApiLandRaw[]>(
+      `${this.config.baseUrl}/lands/my-lands`
+    ).pipe(
+      map(response => {
+        // Handle both wrapped and direct array response
+        const rawData = Array.isArray(response) ? response : (response.data ?? []);
+        const lands = this.transformApiLands(rawData);
+        this.loadingSignal.set(false);
+        return lands;
+      }),
+      catchError(error => {
+        this.errorSignal.set('Erreur lors du chargement de vos terres');
+        this.loadingSignal.set(false);
+        console.error('Error loading my lands:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
    * Get crop recommendations for a land
    */
   getRecommendations(landId: string): Observable<CropRecommendation[]> {

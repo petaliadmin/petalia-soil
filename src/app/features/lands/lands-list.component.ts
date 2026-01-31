@@ -2,9 +2,10 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { LandService } from '../../shared/services/land.service';
+import { FarmerService } from '../../shared/services/farmer.service';
 import { LandCardComponent } from '../../shared/components/land-card/land-card.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
-import { LandFilters, LandType } from '../../shared/models/land.model';
+import { Land, LandFilters, LandType } from '../../shared/models/land.model';
 import { SoilTexture, SOIL_TEXTURE_LABELS } from '../../shared/models/soil-parameters.model';
 
 @Component({
@@ -301,7 +302,11 @@ import { SoilTexture, SOIL_TEXTURE_LABELS } from '../../shared/models/soil-param
                 [class.space-y-4]="viewMode() === 'list'"
               >
                 @for (land of landService.filteredLands(); track land._id) {
-                  <app-land-card [land]="land" />
+                  <app-land-card
+                    [land]="land"
+                    [isFavorite]="farmerService.isFavorite(land._id)"
+                    (favoriteToggle)="onFavoriteToggle($event)"
+                  />
                 }
               </div>
             }
@@ -313,6 +318,7 @@ import { SoilTexture, SOIL_TEXTURE_LABELS } from '../../shared/models/soil-param
 })
 export class LandsListComponent implements OnInit {
   landService = inject(LandService);
+  farmerService = inject(FarmerService);
 
   viewMode = signal<'grid' | 'list'>('grid');
   filters = this.landService.filters;
@@ -352,5 +358,9 @@ export class LandsListComponent implements OnInit {
 
   clearAllFilters(): void {
     this.landService.clearFilters();
+  }
+
+  onFavoriteToggle(land: Land): void {
+    this.farmerService.toggleFavorite(land._id);
   }
 }
