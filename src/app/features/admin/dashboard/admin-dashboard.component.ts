@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LandService } from '../../../shared/services/land.service';
 import { AuthService } from '../../../shared/services/auth.service';
-import { Land, LAND_STATUS_LABELS, LAND_TYPE_LABELS, formatPrice } from '../../../shared/models/land.model';
+import { Land, LandStatus, LAND_STATUS_LABELS, LAND_TYPE_LABELS, formatPrice } from '../../../shared/models/land.model';
 
 interface DashboardStats {
   totalLands: number;
@@ -216,38 +216,76 @@ interface DashboardStats {
                       {{ formatPrice(land.price) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                      <span
-                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                        [class.bg-green-100]="land.status === 'AVAILABLE'"
-                        [class.text-green-800]="land.status === 'AVAILABLE'"
-                        [class.dark:bg-green-900/30]="land.status === 'AVAILABLE'"
-                        [class.dark:text-green-400]="land.status === 'AVAILABLE'"
-                        [class.bg-yellow-100]="land.status === 'PENDING'"
-                        [class.text-yellow-800]="land.status === 'PENDING'"
-                        [class.dark:bg-yellow-900/30]="land.status === 'PENDING'"
-                        [class.dark:text-yellow-400]="land.status === 'PENDING'"
-                        [class.bg-gray-100]="land.status === 'SOLD' || land.status === 'RENTED'"
-                        [class.text-gray-800]="land.status === 'SOLD' || land.status === 'RENTED'"
-                        [class.dark:bg-gray-700]="land.status === 'SOLD' || land.status === 'RENTED'"
-                        [class.dark:text-gray-400]="land.status === 'SOLD' || land.status === 'RENTED'"
-                      >
-                        {{ getStatusLabel(land.status) }}
-                      </span>
+                      <div class="flex items-center">
+                        <div class="relative">
+                          <select
+                            [value]="land.status"
+                            (change)="onStatusChange(land, $event)"
+                            [disabled]="updatingLandId() === land._id"
+                            class="text-xs font-medium rounded-full pl-3 pr-7 py-1 border-0 cursor-pointer focus:ring-2 focus:ring-agri-500 appearance-none"
+                          [class.bg-green-100]="land.status === 'AVAILABLE'"
+                          [class.text-green-800]="land.status === 'AVAILABLE'"
+                          [class.dark:bg-green-900/30]="land.status === 'AVAILABLE'"
+                          [class.dark:text-green-400]="land.status === 'AVAILABLE'"
+                          [class.bg-yellow-100]="land.status === 'PENDING'"
+                          [class.text-yellow-800]="land.status === 'PENDING'"
+                          [class.dark:bg-yellow-900/30]="land.status === 'PENDING'"
+                          [class.dark:text-yellow-400]="land.status === 'PENDING'"
+                          [class.bg-red-100]="land.status === 'SOLD'"
+                          [class.text-red-800]="land.status === 'SOLD'"
+                          [class.dark:bg-red-900/30]="land.status === 'SOLD'"
+                          [class.dark:text-red-400]="land.status === 'SOLD'"
+                          [class.bg-blue-100]="land.status === 'RENTED'"
+                          [class.text-blue-800]="land.status === 'RENTED'"
+                          [class.dark:bg-blue-900/30]="land.status === 'RENTED'"
+                          [class.dark:text-blue-400]="land.status === 'RENTED'"
+                        >
+                          <option value="AVAILABLE">Disponible</option>
+                          <option value="PENDING">En attente</option>
+                          @if (land.type === 'SALE') {
+                            <option value="SOLD">Vendu</option>
+                          }
+                          @if (land.type === 'RENT') {
+                            <option value="RENTED">Loué</option>
+                          }
+                          </select>
+                          <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none text-current opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                          </svg>
+                        </div>
+                        @if (updatingLandId() === land._id) {
+                          <span class="ml-2 inline-block">
+                            <svg class="animate-spin w-4 h-4 text-agri-600" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          </span>
+                        }
+                      </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <a
-                        [routerLink]="['/admin/lands', land._id]"
-                        class="text-agri-600 hover:text-agri-700 dark:text-agri-400 mr-3"
-                      >
-                        Modifier
-                      </a>
-                      <a
-                        [routerLink]="['/lands', land._id]"
-                        target="_blank"
-                        class="text-gray-500 hover:text-gray-700 dark:text-gray-400"
-                      >
-                        Voir
-                      </a>
+                      <div class="flex items-center justify-end space-x-1">
+                        <a
+                          [routerLink]="['/lands', land._id]"
+                          target="_blank"
+                          class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                          title="Voir sur le site"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                          </svg>
+                        </a>
+                        <a
+                          [routerLink]="['/admin/lands', land._id, 'edit']"
+                          class="p-2 text-agri-600 hover:text-agri-700 dark:text-agri-400 rounded-lg hover:bg-agri-50 dark:hover:bg-agri-900/20 transition-colors"
+                          title="Modifier"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                          </svg>
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 }
@@ -320,6 +358,7 @@ export class AdminDashboardComponent implements OnInit {
   });
 
   recentLands = signal<Land[]>([]);
+  updatingLandId = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loadData();
@@ -362,5 +401,36 @@ export class AdminDashboardComponent implements OnInit {
 
   formatPrice(price: number): string {
     return formatPrice(price);
+  }
+
+  onStatusChange(land: Land, event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const newStatus = select.value as LandStatus;
+
+    if (newStatus === land.status) return;
+
+    this.updatingLandId.set(land._id);
+
+    this.landService.updateLandStatus(land._id, newStatus).subscribe({
+      next: (updatedLand) => {
+        if (updatedLand) {
+          // Update local state
+          this.recentLands.update(lands =>
+            lands.map(l => l._id === land._id ? { ...l, status: newStatus } : l)
+          );
+          // Update stats
+          this.stats.update(s => ({
+            ...s,
+            availableLands: this.recentLands().filter(l => l.status === 'AVAILABLE').length
+          }));
+        }
+        this.updatingLandId.set(null);
+      },
+      error: () => {
+        // Revert select value on error
+        select.value = land.status;
+        this.updatingLandId.set(null);
+      }
+    });
   }
 }

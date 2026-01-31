@@ -186,6 +186,20 @@ export class AdminLandService {
   }
 
   /**
+   * Set success message
+   */
+  setSuccess(message: string): void {
+    this.successSignal.set(message);
+  }
+
+  /**
+   * Set error message
+   */
+  setError(message: string): void {
+    this.errorSignal.set(message);
+  }
+
+  /**
    * Clear messages
    */
   clearMessages(): void {

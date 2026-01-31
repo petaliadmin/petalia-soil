@@ -77,6 +77,25 @@ import { getLatitude, getLongitude } from '../../shared/models/location.model';
             </svg>
           </a>
 
+          <!-- Favorite Button -->
+          <button
+            (click)="onFavoriteToggle()"
+            class="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-colors z-10"
+            [attr.aria-label]="isFavorite() ? 'Retirer des favoris' : 'Ajouter aux favoris'"
+          >
+            <svg
+              class="w-6 h-6"
+              [class.text-red-500]="isFavorite()"
+              [class.text-gray-600]="!isFavorite()"
+              [class.dark:text-gray-300]="!isFavorite()"
+              [attr.fill]="isFavorite() ? 'currentColor' : 'none'"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </button>
+
           <!-- Image Gallery Thumbnails -->
           @if (land()!.images && land()!.images!.length > 1) {
             <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
@@ -387,10 +406,10 @@ import { getLatitude, getLongitude } from '../../shared/models/location.model';
                   <div class="flex items-center gap-4 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
                     <div class="w-14 h-14 rounded-full bg-agri-100 dark:bg-agri-900/50 flex items-center justify-center">
                       @if (owner()!.avatar) {
-                        <img [src]="owner()!.avatar" [alt]="owner()!.fullName" class="w-full h-full rounded-full object-cover" />
+                        <img [src]="owner()!.avatar" [alt]="getInitials(owner()!.fullName)" class="w-full h-full rounded-full object-cover" />
                       } @else {
                         <span class="text-xl font-bold text-agri-600 dark:text-agri-400">
-                          {{ owner()!.fullName }}
+                          {{ getInitials(owner()!.fullName)}}
                         </span>
                       }
                     </div>
@@ -524,6 +543,12 @@ export class LandDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     return getPhDescription(landData.soilParameters.ph);
   });
 
+  isFavorite = computed(() => {
+    const landData = this.land();
+    if (!landData) return false;
+    return this.farmerService.isFavorite(landData._id);
+  });
+
   formatPrice = formatPrice;
   formatSurface = formatSurface;
 
@@ -538,8 +563,8 @@ export class LandDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.landService.getLandById(id).subscribe(land => {
       if (land) {
         this.land.set(land);
-        // Track visit for farmers
-        if (this.authService.isAuthenticated() && this.authService.user()?.role === 'FARMER') {
+        // Track visit for all authenticated users
+        if (this.authService.isAuthenticated()) {
           this.farmerService.markAsVisited(land._id);
         }
       } else {
@@ -644,5 +669,24 @@ export class LandDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     const landData = this.land();
     if (!ownerData?.whatsapp) return '#';
     return getWhatsAppLink(ownerData.whatsapp, landData?.title);
+  }
+
+  onFavoriteToggle(): void {
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/admin/login']);
+      return;
+    }
+    const landData = this.land();
+    if (landData) {
+      this.farmerService.toggleFavorite(landData._id);
+    }
+  }
+
+   getInitials(name: string): string {
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
   }
 }

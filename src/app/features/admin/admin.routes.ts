@@ -60,6 +60,11 @@ export const adminRoutes: Routes = [
         title: 'Gestion des utilisateurs - Admin Petalia Soil'
       },
       {
+        path: 'soil-analysis',
+        loadComponent: () => import('./soil-analysis/admin-soil-analysis-list.component').then(m => m.AdminSoilAnalysisListComponent),
+        title: 'Demandes d\'analyse - Admin Petalia Soil'
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'

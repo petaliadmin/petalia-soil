@@ -37,6 +37,11 @@ export const routes: Routes = [
     title: 'Recommandations de Cultures - Petalia Soil'
   },
   {
+    path: 'demande-analyse',
+    loadComponent: () => import('./features/soil-analysis-request/soil-analysis-request.component').then(m => m.SoilAnalysisRequestComponent),
+    title: 'Demande d\'analyse de sol - Petalia Soil'
+  },
+  {
     path: 'admin',
     loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes)
   },

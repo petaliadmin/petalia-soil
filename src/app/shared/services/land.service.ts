@@ -345,6 +345,45 @@ export class LandService {
   }
 
   /**
+   * Update land status (AVAILABLE, PENDING, SOLD, RENTED)
+   */
+  updateLandStatus(landId: string, status: LandStatus): Observable<Land | null> {
+    if (this.config.useMockData) {
+      // Update local state for mock
+      this.landsSignal.update(lands =>
+        lands.map(land =>
+          land._id === landId ? { ...land, status } : land
+        )
+      );
+      const updatedLand = this.landsSignal().find(l => l._id === landId) || null;
+      return of(updatedLand).pipe(delay(300));
+    }
+
+    return this.http.patch<ApiSingleResponse<ApiLandRaw>>(
+      `${this.config.baseUrl}/lands/${landId}`,
+      { status }
+    ).pipe(
+      map(response => {
+        const rawData = response.data ?? response as unknown as ApiLandRaw;
+        const land = this.transformApiLand(rawData);
+        // Update local state
+        this.landsSignal.update(lands =>
+          lands.map(l => l._id === landId ? land : l)
+        );
+        if (this.selectedLandSignal()?._id === landId) {
+          this.selectedLandSignal.set(land);
+        }
+        return land;
+      }),
+      catchError(error => {
+        console.error('Error updating land status:', error);
+        this.errorSignal.set('Erreur lors de la mise à jour du statut');
+        return of(null);
+      })
+    );
+  }
+
+  /**
    * Apply filters to lands array
    */
   private applyFilters(lands: Land[], filters: LandFilters): Land[] {

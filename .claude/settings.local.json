@@ -5,7 +5,9 @@
       "Bash(npx ng build:*)",
       "Bash(curl:*)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(gh api:*)",
+      "WebFetch(domain:api.github.com)"
     ]
   }
 }

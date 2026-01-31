@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Land, formatPrice, formatSurface, LAND_TYPE_LABELS } from '../../models/land.model';
+import { Land, formatPrice, formatSurface, LAND_TYPE_LABELS, LAND_STATUS_LABELS, LandStatus } from '../../models/land.model';
 import { SOIL_TEXTURE_LABELS } from '../../models/soil-parameters.model';
 
 @Component({
@@ -8,22 +8,35 @@ import { SOIL_TEXTURE_LABELS } from '../../models/soil-parameters.model';
   standalone: true,
   imports: [RouterLink],
   template: `
-    <article class="card-interactive group overflow-hidden">
+    <article class="card-interactive group overflow-hidden" [class.opacity-75]="!isAvailable()">
       <!-- Image -->
       <div class="relative h-48 md:h-52 overflow-hidden">
         <img
           [src]="land.thumbnail || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400'"
           [alt]="land.title"
           class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          [class.grayscale]="!isAvailable()"
         />
         <!-- Overlay gradient -->
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
 
+        <!-- Sold/Rented Overlay -->
+        @if (!isAvailable()) {
+          <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <div [class]="getStatusBadgeClass()" class="px-4 py-2 rounded-lg font-bold text-lg shadow-lg transform -rotate-12">
+              {{ getStatusLabel(land.status) }}
+            </div>
+          </div>
+        }
+
         <!-- Type Badge -->
-        <div class="absolute top-4 left-4">
+        <div class="absolute top-4 left-4 flex gap-2">
           <span [class]="land.type === 'RENT' ? 'badge-blue' : 'badge-green'">
             {{ getTypeLabel(land.type) }}
           </span>
+          @if (land.status === 'PENDING') {
+            <span class="badge-yellow">En attente</span>
+          }
         </div>
 
         <!-- Favorite Button -->
@@ -176,6 +189,25 @@ export class LandCardComponent {
 
   getTextureLabel(texture: string): string {
     return SOIL_TEXTURE_LABELS[texture as keyof typeof SOIL_TEXTURE_LABELS] || texture;
+  }
+
+  getStatusLabel(status: LandStatus): string {
+    return LAND_STATUS_LABELS[status] || status;
+  }
+
+  isAvailable(): boolean {
+    return this.land.status === 'AVAILABLE' || this.land.status === 'PENDING';
+  }
+
+  getStatusBadgeClass(): string {
+    switch (this.land.status) {
+      case 'SOLD':
+        return 'bg-red-500 text-white';
+      case 'RENTED':
+        return 'bg-blue-500 text-white';
+      default:
+        return 'bg-gray-500 text-white';
+    }
   }
 
   onFavoriteClick(event: Event): void {

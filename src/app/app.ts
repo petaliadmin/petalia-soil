@@ -2,13 +2,14 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
+import { WhatsappButtonComponent } from './shared/components/whatsapp-button/whatsapp-button.component';
 import { filter, map } from 'rxjs/operators';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, WhatsappButtonComponent],
   template: `
     @if (!isAdminRoute()) {
       <div class="min-h-screen flex flex-col">
@@ -17,6 +18,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
           <router-outlet />
         </main>
         <app-footer />
+        <app-whatsapp-button />
       </div>
     } @else {
       <router-outlet />

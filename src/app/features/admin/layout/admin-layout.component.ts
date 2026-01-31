@@ -17,12 +17,13 @@ import { AuthService } from '../../../shared/services/auth.service';
         <!-- Logo -->
         <div class="flex h-16 items-center justify-between px-6 border-b border-gray-200 dark:border-gray-700">
           <a routerLink="/admin/dashboard" class="flex items-center space-x-2">
-            <div class="w-8 h-8 bg-agri-600 rounded-lg flex items-center justify-center">
-              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
+            <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+              <img  src="logo.png" [alt]="'Pétalia'"/>
             </div>
-            <span class="text-xl font-bold text-gray-900 dark:text-white">Petalia</span>
+            <div class="hidden sm:block">
+              <span class="text-xl md:text-2xl font-display font-bold text-gray-900 dark:text-white">Petalia</span>
+              <span class="text-xl md:text-2xl font-display font-bold text-agri-600 dark:text-agri-400">Soil</span>
+            </div>
           </a>
           <button
             (click)="toggleSidebar()"
@@ -57,6 +58,17 @@ import { AuthService } from '../../../shared/services/auth.service';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
               </svg>
               Gestion des terres
+            </a>
+
+            <a
+              routerLink="/admin/soil-analysis"
+              routerLinkActive="bg-agri-50 text-agri-700 dark:bg-agri-900/20 dark:text-agri-400"
+              class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
+              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+              </svg>
+              Demandes d'analyse
             </a>
 
             @if (authService.isAdmin()) {
@@ -298,7 +310,7 @@ import { AuthService } from '../../../shared/services/auth.service';
                 &copy; {{ currentYear }} Petalia Soil. Tous droits reserves.
               </p>
               <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                <a href="mailto:support@petalia-soil.com" class="hover:text-agri-600 dark:hover:text-agri-400 transition-colors flex items-center gap-1">
+                <a href="mailto:contact@petalia.sn" class="hover:text-agri-600 dark:hover:text-agri-400 transition-colors flex items-center gap-1">
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                   </svg>

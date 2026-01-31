@@ -1,8 +1,9 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { LandService } from '../../shared/services/land.service';
 import { FarmerService } from '../../shared/services/farmer.service';
+import { AuthService } from '../../shared/services/auth.service';
 import { LandCardComponent } from '../../shared/components/land-card/land-card.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { Land, LandFilters, LandType } from '../../shared/models/land.model';
@@ -317,8 +318,10 @@ import { SoilTexture, SOIL_TEXTURE_LABELS } from '../../shared/models/soil-param
   `
 })
 export class LandsListComponent implements OnInit {
+  private router = inject(Router);
   landService = inject(LandService);
   farmerService = inject(FarmerService);
+  authService = inject(AuthService);
 
   viewMode = signal<'grid' | 'list'>('grid');
   filters = this.landService.filters;
@@ -361,6 +364,10 @@ export class LandsListComponent implements OnInit {
   }
 
   onFavoriteToggle(land: Land): void {
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/admin/login']);
+      return;
+    }
     this.farmerService.toggleFavorite(land._id);
   }
 }

@@ -43,6 +43,16 @@ interface UploadedImage {
         </a>
       </div>
 
+      <!-- Loading State -->
+      @if (loadingLand()) {
+        <div class="flex items-center justify-center py-12">
+          <div class="text-center">
+            <div class="animate-spin w-10 h-10 border-4 border-agri-600 border-t-transparent rounded-full mx-auto"></div>
+            <p class="mt-4 text-gray-500 dark:text-gray-400">Chargement des données...</p>
+          </div>
+        </div>
+      } @else {
+
       <!-- Error Message -->
       @if (adminLandService.error()) {
         <div class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
@@ -651,6 +661,7 @@ interface UploadedImage {
           </button>
         </div>
       </form>
+      }
     </div>
   `
 })
@@ -663,6 +674,7 @@ export class AdminLandFormComponent implements OnInit {
 
   isEditMode = signal(false);
   landId = signal<string | null>(null);
+  loadingLand = signal(false);
   isDragging = signal(false);
   uploadedImages = signal<UploadedImage[]>([]);
   showUrlInput = signal(false);
@@ -723,7 +735,9 @@ export class AdminLandFormComponent implements OnInit {
   }
 
   loadLand(id: string): void {
+    this.loadingLand.set(true);
     this.landService.getLandById(id).subscribe(land => {
+      this.loadingLand.set(false);
       if (land) {
         this.form.patchValue({
           // Informations générales
