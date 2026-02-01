@@ -12,8 +12,8 @@ import {
   standalone: true,
   imports: [FormsModule, RouterLink],
   template: `
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <!-- Hero Section -->
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20 sm:pb-0">
+      <!-- Hero Section - more compact on mobile -->
       <div class="bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 relative overflow-hidden">
         <div class="absolute inset-0 opacity-10">
           <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -26,28 +26,27 @@ import {
           </svg>
         </div>
 
-        <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 text-center">
-          <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full mb-6">
-            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 md:py-24 text-center">
+          <div class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/20 backdrop-blur-sm rounded-full mb-4 sm:mb-6">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
             </svg>
-            <span class="text-white text-sm font-medium">Service d'analyse professionnelle</span>
+            <span class="text-white text-xs sm:text-sm font-medium">Service d'analyse professionnelle</span>
           </div>
 
-          <h1 class="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-4">
+          <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-3 sm:mb-4">
             Demande d'analyse de sol
           </h1>
-          <p class="text-lg md:text-xl text-amber-100 max-w-2xl mx-auto">
+          <p class="text-base sm:text-lg md:text-xl text-amber-100 max-w-2xl mx-auto px-2">
             Obtenez une analyse complete de votre sol pour optimiser vos cultures.
-            Nos experts se deplacent sur votre parcelle.
           </p>
         </div>
       </div>
 
-      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
         @if (service.submitted()) {
           <!-- Success Message -->
-          <div class="card p-8 md:p-12 text-center">
+          <div class="card p-6 sm:p-8 md:p-12 text-center animate-slide-up">
             <div class="w-20 h-20 mx-auto mb-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
               <svg class="w-10 h-10 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -94,12 +93,12 @@ import {
           </div>
         } @else {
           <!-- Form -->
-          <div class="card p-6 md:p-8">
+          <div class="card p-4 sm:p-6 md:p-8 animate-slide-up">
             <form (ngSubmit)="onSubmit()" #analysisForm="ngForm">
               <!-- Contact Information -->
-              <div class="mb-8">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+              <div class="mb-6 sm:mb-8">
+                <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
                     <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
@@ -107,9 +106,9 @@ import {
                   Vos coordonnees
                 </h2>
 
-                <div class="grid md:grid-cols-2 gap-4">
+                <div class="grid md:grid-cols-2 gap-3 sm:gap-4">
                   <div class="md:col-span-2">
-                    <label for="fullName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="fullName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                       Nom complet *
                     </label>
                     <input
@@ -118,13 +117,14 @@ import {
                       name="fullName"
                       [(ngModel)]="formData.fullName"
                       required
-                      class="input-field"
+                      autocomplete="name"
+                      class="input-field text-base py-3.5 sm:py-3"
                       placeholder="Votre nom complet"
                     />
                   </div>
 
                   <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                       Email *
                     </label>
                     <input
@@ -134,13 +134,15 @@ import {
                       [(ngModel)]="formData.email"
                       required
                       email
-                      class="input-field"
+                      autocomplete="email"
+                      inputmode="email"
+                      class="input-field text-base py-3.5 sm:py-3"
                       placeholder="votre@email.com"
                     />
                   </div>
 
                   <div>
-                    <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                       Telephone *
                     </label>
                     <input
@@ -149,7 +151,9 @@ import {
                       name="phone"
                       [(ngModel)]="formData.phone"
                       required
-                      class="input-field"
+                      autocomplete="tel"
+                      inputmode="tel"
+                      class="input-field text-base py-3.5 sm:py-3"
                       placeholder="+221 77 000 00 00"
                     />
                   </div>
@@ -157,9 +161,9 @@ import {
               </div>
 
               <!-- Plot Information -->
-              <div class="mb-8">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <div class="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+              <div class="mb-6 sm:mb-8">
+                <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
                     <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
                     </svg>
@@ -167,9 +171,9 @@ import {
                   Informations sur la parcelle
                 </h2>
 
-                <div class="grid md:grid-cols-2 gap-4">
+                <div class="grid md:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label for="region" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="region" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                       Region *
                     </label>
                     <select
@@ -177,7 +181,7 @@ import {
                       name="region"
                       [(ngModel)]="formData.region"
                       required
-                      class="input-field"
+                      class="input-field text-base py-3.5 sm:py-3"
                     >
                       <option value="">Selectionnez une region</option>
                       @for (region of regions; track region) {
@@ -187,7 +191,7 @@ import {
                   </div>
 
                   <div>
-                    <label for="commune" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="commune" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                       Commune *
                     </label>
                     <input
@@ -196,13 +200,13 @@ import {
                       name="commune"
                       [(ngModel)]="formData.commune"
                       required
-                      class="input-field"
+                      class="input-field text-base py-3.5 sm:py-3"
                       placeholder="Nom de la commune"
                     />
                   </div>
 
                   <div>
-                    <label for="surface" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="surface" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                       Surface (hectares) *
                     </label>
                     <input
@@ -213,22 +217,23 @@ import {
                       required
                       min="0.1"
                       step="0.1"
-                      class="input-field"
+                      inputmode="decimal"
+                      class="input-field text-base py-3.5 sm:py-3"
                       placeholder="Ex: 5.5"
                     />
                   </div>
 
                   <div class="md:col-span-2">
-                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                       Description (optionnel)
                     </label>
                     <textarea
                       id="description"
                       name="description"
                       [(ngModel)]="formData.description"
-                      rows="4"
-                      class="input-field resize-none"
-                      placeholder="Decrivez votre parcelle, vos objectifs, les cultures envisagees..."
+                      rows="3"
+                      class="input-field text-base resize-none"
+                      placeholder="Decrivez votre parcelle, vos objectifs..."
                     ></textarea>
                   </div>
                 </div>
@@ -246,15 +251,15 @@ import {
                 </div>
               }
 
-              <!-- Submit Button -->
-              <div class="flex flex-col sm:flex-row gap-4 justify-end">
-                <a routerLink="/" class="btn-outline justify-center">
+              <!-- Submit Button - Full width on mobile -->
+              <div class="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 sm:justify-end">
+                <a routerLink="/" class="btn-outline justify-center py-3.5 sm:py-3 touch-target">
                   Annuler
                 </a>
                 <button
                   type="submit"
                   [disabled]="!analysisForm.valid || service.loading()"
-                  class="btn-primary justify-center"
+                  class="btn-primary justify-center py-3.5 sm:py-3 touch-target active:scale-[0.98] transition-transform"
                   [class.opacity-50]="!analysisForm.valid || service.loading()"
                   [class.cursor-not-allowed]="!analysisForm.valid || service.loading()"
                 >
@@ -275,42 +280,50 @@ import {
             </form>
           </div>
 
-          <!-- Info Cards -->
-          <div class="grid md:grid-cols-3 gap-6 mt-8">
-            <div class="card p-6 text-center">
-              <div class="w-12 h-12 mx-auto mb-4 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
-                <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                </svg>
+          <!-- Info Cards - Horizontal scroll on mobile -->
+          <div class="mt-6 sm:mt-8 -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div class="flex sm:grid sm:grid-cols-3 gap-4 sm:gap-6 overflow-x-auto scrollbar-hide pb-4 sm:pb-0 snap-x snap-mandatory">
+              <div class="card p-4 sm:p-6 text-center flex-shrink-0 w-[280px] sm:w-auto snap-center">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
+                  <svg class="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                  </svg>
+                </div>
+                <h3 class="font-semibold text-gray-900 dark:text-white mb-1.5 sm:mb-2 text-sm sm:text-base">Optimisez vos rendements</h3>
+                <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                  Connaissez les parametres de votre sol pour maximiser vos cultures
+                </p>
               </div>
-              <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Optimisez vos rendements</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                Connaissez les parametres de votre sol (pH, NPK, texture) pour maximiser vos cultures
-              </p>
-            </div>
 
-            <div class="card p-6 text-center">
-              <div class="w-12 h-12 mx-auto mb-4 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
-                <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
+              <div class="card p-4 sm:p-6 text-center flex-shrink-0 w-[280px] sm:w-auto snap-center">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                  <svg class="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <h3 class="font-semibold text-gray-900 dark:text-white mb-1.5 sm:mb-2 text-sm sm:text-base">Valorisez vos terres</h3>
+                <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                  Mettez vos terres en vente avec des donnees fiables et certifiees
+                </p>
               </div>
-              <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Valorisez vos terres</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                Mettez vos terres en vente ou en location avec des donnees fiables et certifiees
-              </p>
-            </div>
 
-            <div class="card p-6 text-center">
-              <div class="w-12 h-12 mx-auto mb-4 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                </svg>
+              <div class="card p-4 sm:p-6 text-center flex-shrink-0 w-[280px] sm:w-auto snap-center">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                  <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                  </svg>
+                </div>
+                <h3 class="font-semibold text-gray-900 dark:text-white mb-1.5 sm:mb-2 text-sm sm:text-base">Recommandations IA</h3>
+                <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                  Conseils personnalises par intelligence artificielle
+                </p>
               </div>
-              <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Recommandations IA</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                Beneficiez de conseils personnalises par intelligence artificielle pour vos cultures
-              </p>
+            </div>
+            <!-- Scroll indicator on mobile -->
+            <div class="flex justify-center gap-1.5 mt-3 sm:hidden">
+              <span class="w-8 h-1 bg-amber-500 rounded-full"></span>
+              <span class="w-2 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></span>
+              <span class="w-2 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></span>
             </div>
           </div>
         }

@@ -109,6 +109,27 @@ export class TechnicianService {
   }
 
   /**
+   * Get all active technicians (regardless of region)
+   */
+  getAllActiveTechnicians(): Observable<Technician[]> {
+    this.loading.set(true);
+
+    return this.http.get<ApiResponse<Technician[]>>(`${this.apiUrl}/active`).pipe(
+      map(response => response.success ? response.data : []),
+      tap(() => this.loading.set(false)),
+      catchError(error => {
+        console.error('Error fetching active technicians:', error);
+        this.loading.set(false);
+        // Mock data for development
+        if (error.status === 404 || error.status === 0) {
+          return of(this.getMockTechnicians().filter(t => t.status === 'active'));
+        }
+        return of([]);
+      })
+    );
+  }
+
+  /**
    * Get a technician by ID
    */
   getTechnicianById(id: string): Observable<Technician | null> {

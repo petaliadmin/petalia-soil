@@ -16,7 +16,7 @@ import { AuthService } from '../../../shared/services/auth.service';
       >
         <!-- Logo -->
         <div class="flex h-16 items-center justify-between px-6 border-b border-gray-200 dark:border-gray-700">
-          <a routerLink="/admin/dashboard" class="flex items-center space-x-2">
+          <a [routerLink]="getDashboardLink()" class="flex items-center space-x-2">
             <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
               <img  src="logo.png" [alt]="'Pétalia'"/>
             </div>
@@ -39,7 +39,7 @@ import { AuthService } from '../../../shared/services/auth.service';
         <nav class="mt-6 px-3">
           <div class="space-y-1">
             <a
-              routerLink="/admin/dashboard"
+              [routerLink]="getDashboardLink()"
               routerLinkActive="bg-agri-50 text-agri-700 dark:bg-agri-900/20 dark:text-agri-400"
               class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
@@ -49,27 +49,53 @@ import { AuthService } from '../../../shared/services/auth.service';
               Tableau de bord
             </a>
 
-            <a
-              routerLink="/admin/lands"
-              routerLinkActive="bg-agri-50 text-agri-700 dark:bg-agri-900/20 dark:text-agri-400"
-              class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            >
-              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-              </svg>
-              Gestion des terres
-            </a>
+            @if (authService.isOwner()) {
+              <a
+                routerLink="/admin/lands"
+                routerLinkActive="bg-agri-50 text-agri-700 dark:bg-agri-900/20 dark:text-agri-400"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                </svg>
+                Gestion des terres
+              </a>
 
-            <a
-              routerLink="/admin/soil-analysis"
-              routerLinkActive="bg-agri-50 text-agri-700 dark:bg-agri-900/20 dark:text-agri-400"
-              class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            >
-              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
-              </svg>
-              Demandes d'analyse
-            </a>
+              <a
+                routerLink="/admin/my-requests"
+                routerLinkActive="bg-agri-50 text-agri-700 dark:bg-agri-900/20 dark:text-agri-400"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                </svg>
+                Mes demandes d'analyse
+              </a>
+            }
+
+            @if (authService.isAdmin()) {
+              <a
+                routerLink="/admin/soil-analysis"
+                routerLinkActive="bg-agri-50 text-agri-700 dark:bg-agri-900/20 dark:text-agri-400"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                </svg>
+                Demandes d'analyse
+              </a>
+
+              <a
+                routerLink="/admin/technicians"
+                routerLinkActive="bg-agri-50 text-agri-700 dark:bg-agri-900/20 dark:text-agri-400"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                Techniciens
+              </a>
+            }
 
             @if (authService.isAdmin()) {
               <a
@@ -169,16 +195,18 @@ import { AuthService } from '../../../shared/services/auth.service';
                 Voir le site
               </a>
 
-              <!-- Nouvelle terre -->
-              <a
-                routerLink="/admin/lands/new"
-                class="hidden sm:inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-agri-600 rounded-lg hover:bg-agri-700 transition-colors"
-              >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                Nouvelle terre
-              </a>
+              <!-- Nouvelle terre (owners only) -->
+              @if (authService.isOwner()) {
+                <a
+                  routerLink="/admin/lands/new"
+                  class="hidden sm:inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-agri-600 rounded-lg hover:bg-agri-700 transition-colors"
+                >
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  Nouvelle terre
+                </a>
+              }
 
               <!-- Notifications -->
               <div class="relative">
@@ -250,7 +278,7 @@ import { AuthService } from '../../../shared/services/auth.service';
                       <p class="text-xs text-gray-500 dark:text-gray-400">{{ authService.user()?.email }}</p>
                     </div>
                     <a
-                      routerLink="/admin/dashboard"
+                      [routerLink]="getDashboardLink()"
                       (click)="closeUserMenu()"
                       class="flex items-center gap-3 px-4 py-2.5 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     >
@@ -259,16 +287,18 @@ import { AuthService } from '../../../shared/services/auth.service';
                       </svg>
                       Tableau de bord
                     </a>
-                    <a
-                      routerLink="/admin/lands"
-                      (click)="closeUserMenu()"
-                      class="flex items-center gap-3 px-4 py-2.5 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                      </svg>
-                      Mes terres
-                    </a>
+                    @if (authService.isOwner()) {
+                      <a
+                        routerLink="/admin/lands"
+                        (click)="closeUserMenu()"
+                        class="flex items-center gap-3 px-4 py-2.5 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      >
+                        <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                        </svg>
+                        Mes terres
+                      </a>
+                    }
                     <a
                       routerLink="/"
                       (click)="closeUserMenu()"
@@ -378,5 +408,13 @@ export class AdminLayoutComponent {
       FARMER: 'Agriculteur'
     };
     return labels[role || ''] || role || '';
+  }
+
+  getDashboardLink(): string {
+    const role = this.authService.user()?.role;
+    if (role === 'FARMER') {
+      return '/admin/farmer';
+    }
+    return '/admin/dashboard';
   }
 }

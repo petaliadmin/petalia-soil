@@ -99,7 +99,7 @@ import { AuthService } from '../../services/auth.service';
                       <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ authService.user()?.fullName }}</p>
                       <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ authService.user()?.email }}</p>
                     </div>
-                    <a routerLink="/admin/dashboard"
+                    <a [routerLink]="getDashboardLink()"
                        (click)="closeUserMenu()"
                        class="flex items-center gap-3 px-4 py-2.5 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                       <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -107,21 +107,39 @@ import { AuthService } from '../../services/auth.service';
                       </svg>
                       Mon espace
                     </a>
-                    <a routerLink="/admin/lands"
+                    @if (authService.isOwner()) {
+                      <a routerLink="/admin/lands"
+                         (click)="closeUserMenu()"
+                         class="flex items-center gap-3 px-4 py-2.5 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                        </svg>
+                        Mes terres
+                      </a>
+                      <a routerLink="/admin/lands/new"
+                         (click)="closeUserMenu()"
+                         class="flex items-center gap-3 px-4 py-2.5 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Publier une annonce
+                      </a>
+                    }
+                    <a [routerLink]="getMyRequestsLink()"
                        (click)="closeUserMenu()"
                        class="flex items-center gap-3 px-4 py-2.5 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                       <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
                       </svg>
-                      Mes terres
+                      Mes demandes d'analyse
                     </a>
-                    <a routerLink="/admin/lands/new"
+                    <a routerLink="/demande-analyse"
                        (click)="closeUserMenu()"
-                       class="flex items-center gap-3 px-4 py-2.5 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                      <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       class="flex items-center gap-3 px-4 py-2.5 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                       </svg>
-                      Publier une annonce
+                      Nouvelle demande d'analyse
                     </a>
                     <div class="border-t border-gray-100 dark:border-gray-700 mt-2 pt-2">
                       <button
@@ -222,7 +240,7 @@ import { AuthService } from '../../services/auth.service';
                       <p class="text-sm text-gray-500 dark:text-gray-400">{{ authService.user()?.email }}</p>
                     </div>
                   </div>
-                  <a routerLink="/admin/dashboard"
+                  <a [routerLink]="getDashboardLink()"
                      (click)="closeMobileMenu()"
                      class="px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-colors flex items-center gap-3">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -230,21 +248,39 @@ import { AuthService } from '../../services/auth.service';
                     </svg>
                     Mon espace
                   </a>
-                  <a routerLink="/admin/lands"
+                  @if (authService.isOwner()) {
+                    <a routerLink="/admin/lands"
+                       (click)="closeMobileMenu()"
+                       class="px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-colors flex items-center gap-3">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                      </svg>
+                      Mes terres
+                    </a>
+                    <a routerLink="/admin/lands/new"
+                       (click)="closeMobileMenu()"
+                       class="px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-colors flex items-center gap-3">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                      </svg>
+                      Publier une annonce
+                    </a>
+                  }
+                  <a [routerLink]="getMyRequestsLink()"
                      (click)="closeMobileMenu()"
                      class="px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-colors flex items-center gap-3">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
                     </svg>
-                    Mes terres
+                    Mes demandes d'analyse
                   </a>
-                  <a routerLink="/admin/lands/new"
+                  <a routerLink="/demande-analyse"
                      (click)="closeMobileMenu()"
-                     class="px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium transition-colors flex items-center gap-3">
+                     class="px-4 py-3 rounded-lg text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 font-medium transition-colors flex items-center gap-3">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
-                    Publier une annonce
+                    Nouvelle demande d'analyse
                   </a>
                   <button
                     (click)="logout()"
@@ -318,6 +354,22 @@ export class HeaderComponent {
       return (parts[0][0] + parts[1][0]).toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
+  }
+
+  getDashboardLink(): string {
+    const role = this.authService.user()?.role;
+    if (role === 'FARMER') {
+      return '/admin/farmer';
+    }
+    return '/admin/dashboard';
+  }
+
+  getMyRequestsLink(): string {
+    const role = this.authService.user()?.role;
+    if (role === 'FARMER') {
+      return '/admin/farmer';
+    }
+    return '/admin/my-requests';
   }
 
   logout(): void {

@@ -170,3 +170,343 @@ body {
 .stagger-3 { animation-delay: 0.3s; }
 .stagger-4 { animation-delay: 0.4s; }
 .stagger-5 { animation-delay: 0.5s; }
+
+/* Mobile-first improvements */
+@layer utilities {
+  /* Touch-friendly minimum sizes */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Safe area padding for notched phones */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* Smooth scrolling containers */
+  .scroll-smooth {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  /* Prevent text selection on interactive elements */
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* Active state for touch devices */
+  .touch-active {
+    @apply active:scale-95 active:opacity-80 transition-transform duration-150;
+  }
+}
+
+/* Slide animations */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse-gentle {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
+.animate-slide-out-right {
+  animation: slideOutRight 0.3s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.animate-pulse-gentle {
+  animation: pulse-gentle 2s ease-in-out infinite;
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+/* Floating Action Button - Enhanced visibility */
+.fab {
+  @apply rounded-full
+         flex items-center justify-center
+         transform transition-all duration-300 ease-out
+         hover:scale-110 active:scale-95
+         focus:outline-none focus:ring-4 focus:ring-offset-2;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.fab-primary {
+  @apply fab bg-agri-600 text-white
+         hover:bg-agri-700
+         focus:ring-agri-400;
+  box-shadow: 0 8px 32px rgba(34, 197, 94, 0.5), 0 4px 16px rgba(34, 197, 94, 0.4);
+}
+
+.fab-whatsapp {
+  @apply fab text-white;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  box-shadow: 0 8px 32px rgba(37, 211, 102, 0.6), 0 4px 16px rgba(37, 211, 102, 0.5);
+}
+
+.fab-whatsapp:hover {
+  background: linear-gradient(135deg, #2EE370 0%, #15A085 100%);
+  box-shadow: 0 12px 40px rgba(37, 211, 102, 0.7), 0 6px 20px rgba(37, 211, 102, 0.6);
+}
+
+.fab-amber {
+  @apply fab text-white;
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  box-shadow: 0 8px 32px rgba(245, 158, 11, 0.6), 0 4px 16px rgba(245, 158, 11, 0.5);
+}
+
+.fab-amber:hover {
+  background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+  box-shadow: 0 12px 40px rgba(245, 158, 11, 0.7), 0 6px 20px rgba(245, 158, 11, 0.6);
+}
+
+/* Glow animation for FABs */
+@keyframes fab-glow {
+  0%, 100% {
+    box-shadow: 0 8px 32px rgba(37, 211, 102, 0.5), 0 4px 16px rgba(37, 211, 102, 0.4);
+  }
+  50% {
+    box-shadow: 0 8px 40px rgba(37, 211, 102, 0.7), 0 4px 20px rgba(37, 211, 102, 0.6), 0 0 30px rgba(37, 211, 102, 0.4);
+  }
+}
+
+@keyframes fab-glow-amber {
+  0%, 100% {
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.5), 0 4px 16px rgba(245, 158, 11, 0.4);
+  }
+  50% {
+    box-shadow: 0 8px 40px rgba(245, 158, 11, 0.7), 0 4px 20px rgba(245, 158, 11, 0.6), 0 0 30px rgba(245, 158, 11, 0.4);
+  }
+}
+
+.fab-whatsapp-glow {
+  animation: fab-glow 2s ease-in-out infinite;
+}
+
+.fab-amber-glow {
+  animation: fab-glow-amber 2s ease-in-out infinite;
+}
+
+/* Bottom navigation for mobile */
+.bottom-nav {
+  @apply fixed bottom-0 left-0 right-0 z-40
+         bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg
+         border-t border-gray-200 dark:border-gray-700
+         safe-area-bottom;
+}
+
+/* Improved card for mobile */
+@layer components {
+  .card-mobile {
+    @apply card p-4 sm:p-6;
+  }
+
+  .badge-yellow {
+    @apply badge bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400;
+  }
+
+  .badge-red {
+    @apply badge bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400;
+  }
+
+  /* Touch-optimized input */
+  .input-field-mobile {
+    @apply input-field text-base py-4;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Full-width button for mobile */
+  .btn-mobile {
+    @apply w-full py-4 text-base font-semibold rounded-xl
+           touch-target touch-active;
+  }
+}
+
+/* Pull to refresh indicator */
+.ptr-indicator {
+  @apply flex items-center justify-center py-4 text-gray-500;
+}
+
+/* Skeleton loading */
+.skeleton {
+  @apply bg-gray-200 dark:bg-gray-700 rounded animate-pulse;
+}
+
+.skeleton-text {
+  @apply skeleton h-4 rounded-md;
+}
+
+.skeleton-avatar {
+  @apply skeleton rounded-full;
+}
+
+.skeleton-card {
+  @apply skeleton rounded-2xl;
+}
+
+/* Toast notifications */
+.toast {
+  @apply fixed z-[100] px-6 py-4 rounded-2xl shadow-2xl
+         flex items-center gap-3 max-w-sm
+         animate-slide-up;
+}
+
+.toast-success {
+  @apply toast bg-green-600 text-white;
+}
+
+.toast-error {
+  @apply toast bg-red-600 text-white;
+}
+
+.toast-info {
+  @apply toast bg-blue-600 text-white;
+}
+
+/* Mobile overlay */
+.mobile-overlay {
+  @apply fixed inset-0 z-40 bg-black/50 backdrop-blur-sm
+         animate-fade-in;
+}
+
+/* Bottom sheet */
+.bottom-sheet {
+  @apply fixed bottom-0 left-0 right-0 z-50
+         bg-white dark:bg-gray-800
+         rounded-t-3xl shadow-2xl
+         max-h-[90vh] overflow-auto
+         safe-area-bottom
+         animate-slide-up;
+}
+
+.bottom-sheet-handle {
+  @apply w-12 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto my-3;
+}
+
+/* Improve tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+  @apply outline-none ring-2 ring-agri-500 ring-offset-2 dark:ring-offset-gray-900;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Mobile landscape improvements */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hide-landscape {
+    display: none;
+  }
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  /* Fix for iOS vh units */
+  .min-h-screen-ios {
+    min-height: -webkit-fill-available;
+  }
+}

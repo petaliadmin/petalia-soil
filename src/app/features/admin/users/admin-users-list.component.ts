@@ -160,19 +160,32 @@ import { UserRole } from '../../../shared/models/owner.model';
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Inscription
                   </th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                 @for (user of filteredUsers(); track user._id) {
-                  <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <tr
+                    class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    [class.opacity-50]="user.isActive === false"
+                  >
                     <td class="px-6 py-4 whitespace-nowrap">
                       <div class="flex items-center">
-                        <div class="flex-shrink-0 h-10 w-10">
+                        <div class="flex-shrink-0 h-10 w-10 relative">
                           <div class="h-10 w-10 rounded-full bg-agri-100 dark:bg-agri-900/30 flex items-center justify-center">
                             <span class="text-agri-700 dark:text-agri-400 font-medium">
                               {{ getInitials(user.fullName) }}
                             </span>
                           </div>
+                          @if (user.isActive === false) {
+                            <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                              <svg class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                              </svg>
+                            </div>
+                          }
                         </div>
                         <div class="ml-4">
                           <div class="text-sm font-medium text-gray-900 dark:text-white">
@@ -208,21 +221,62 @@ import { UserRole } from '../../../shared/models/owner.model';
                       </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                      @if (user.verified) {
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                          <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                      <div class="flex items-center gap-2">
+                        <!-- Active Status Toggle -->
+                        <button
+                          (click)="toggleUserStatus(user)"
+                          [disabled]="updatingUserId() === user._id"
+                          class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-wait"
+                          [class.bg-green-500]="user.isActive !== false"
+                          [class.bg-gray-300]="user.isActive === false"
+                          [class.dark:bg-gray-600]="user.isActive === false"
+                          [title]="user.isActive !== false ? 'Desactiver' : 'Activer'"
+                        >
+                          <span
+                            class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                            [class.translate-x-5]="user.isActive !== false"
+                            [class.translate-x-0]="user.isActive === false"
+                          ></span>
+                        </button>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">
+                          {{ user.isActive !== false ? 'Actif' : 'Inactif' }}
+                        </span>
+                        @if (updatingUserId() === user._id) {
+                          <svg class="animate-spin w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
-                          Vérifié
-                        </span>
-                      } @else {
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
-                          Non vérifié
-                        </span>
-                      }
+                        }
+                      </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       {{ user.createdAt | date:'dd/MM/yyyy' }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div class="flex items-center justify-end gap-1">
+                        <!-- View/Edit button could go here -->
+                        <button
+                          (click)="confirmToggleStatus(user)"
+                          class="p-2 rounded-lg transition-colors"
+                          [class.text-red-500]="user.isActive !== false"
+                          [class.hover:bg-red-50]="user.isActive !== false"
+                          [class.dark:hover:bg-red-900/20]="user.isActive !== false"
+                          [class.text-green-500]="user.isActive === false"
+                          [class.hover:bg-green-50]="user.isActive === false"
+                          [class.dark:hover:bg-green-900/20]="user.isActive === false"
+                          [title]="user.isActive !== false ? 'Desactiver ce compte' : 'Reactiver ce compte'"
+                        >
+                          @if (user.isActive !== false) {
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                            </svg>
+                          } @else {
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                          }
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 }
@@ -240,6 +294,8 @@ export class AdminUsersListComponent implements OnInit {
   searchQuery = '';
   filterRole: UserRole | '' = '';
   filteredUsers = signal<User[]>([]);
+  updatingUserId = signal<string | null>(null);
+  userToToggle = signal<User | null>(null);
 
   ngOnInit(): void {
     this.userService.loadUsers().subscribe(() => {
@@ -283,5 +339,29 @@ export class AdminUsersListComponent implements OnInit {
 
   getCountByRole(role: UserRole): number {
     return this.userService.getUsersByRole(role).length;
+  }
+
+  toggleUserStatus(user: User): void {
+    const newStatus = user.isActive === false ? true : false;
+    this.updatingUserId.set(user._id);
+
+    this.userService.toggleUserStatus(user._id, newStatus).subscribe({
+      next: (result) => {
+        if (result) {
+          this.filterUsers();
+        }
+        this.updatingUserId.set(null);
+      },
+      error: () => {
+        this.updatingUserId.set(null);
+      }
+    });
+  }
+
+  confirmToggleStatus(user: User): void {
+    const action = user.isActive !== false ? 'désactiver' : 'réactiver';
+    if (confirm(`Voulez-vous vraiment ${action} le compte de ${user.fullName} ?`)) {
+      this.toggleUserStatus(user);
+    }
   }
 }

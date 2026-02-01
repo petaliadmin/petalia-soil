@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Land, formatPrice, formatSurface, LAND_TYPE_LABELS, LAND_STATUS_LABELS, LandStatus } from '../../models/land.model';
 import { SOIL_TEXTURE_LABELS } from '../../models/soil-parameters.model';
@@ -8,14 +8,22 @@ import { SOIL_TEXTURE_LABELS } from '../../models/soil-parameters.model';
   standalone: true,
   imports: [RouterLink],
   template: `
-    <article class="card-interactive group overflow-hidden" [class.opacity-75]="!isAvailable()">
+    <article
+      class="card-interactive group overflow-hidden no-select"
+      [class.opacity-75]="!isAvailable()"
+      [class.scale-[0.98]]="isPressed()"
+      (touchstart)="onTouchStart()"
+      (touchend)="onTouchEnd()"
+      (touchcancel)="onTouchEnd()"
+    >
       <!-- Image -->
-      <div class="relative h-48 md:h-52 overflow-hidden">
+      <div class="relative h-40 sm:h-48 md:h-52 overflow-hidden">
         <img
           [src]="land.thumbnail || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400'"
           [alt]="land.title"
           class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           [class.grayscale]="!isAvailable()"
+          loading="lazy"
         />
         <!-- Overlay gradient -->
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
@@ -39,15 +47,17 @@ import { SOIL_TEXTURE_LABELS } from '../../models/soil-parameters.model';
           }
         </div>
 
-        <!-- Favorite Button -->
+        <!-- Favorite Button - larger touch target for mobile -->
         <button
           (click)="onFavoriteClick($event)"
-          class="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 dark:bg-gray-800/90 flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-colors"
+          class="absolute top-3 right-3 w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-white/90 dark:bg-gray-800/90 flex items-center justify-center shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-all active:scale-90 touch-target"
+          [class.animate-pulse-gentle]="favoriteAnimating()"
         >
           <svg
-            class="w-5 h-5"
+            class="w-6 h-6 sm:w-5 sm:h-5 transition-transform"
             [class.text-red-500]="isFavorite"
             [class.text-gray-400]="!isFavorite"
+            [class.scale-110]="isFavorite"
             [attr.fill]="isFavorite ? 'currentColor' : 'none'"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -74,21 +84,21 @@ import { SOIL_TEXTURE_LABELS } from '../../models/soil-parameters.model';
       </div>
 
       <!-- Content -->
-      <div class="p-5">
+      <div class="p-4 sm:p-5">
         <!-- Title & Location -->
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-agri-600 dark:group-hover:text-agri-400 transition-colors">
+        <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-1.5 sm:mb-2 line-clamp-1 group-hover:text-agri-600 dark:group-hover:text-agri-400 transition-colors">
           {{ land.title }}
         </h3>
-        <div class="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-sm mb-4">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-xs sm:text-sm mb-3 sm:mb-4">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
           </svg>
-          <span>{{ land.address.commune }}, {{ land.address.region }}</span>
+          <span class="truncate">{{ land.address.commune }}, {{ land.address.region }}</span>
         </div>
 
-        <!-- Soil Parameters -->
-        <div class="grid grid-cols-2 gap-3 mb-4">
+        <!-- Soil Parameters - Compact on mobile -->
+        <div class="grid grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-4">
           <!-- pH -->
           <div class="flex items-center gap-2 text-sm">
             <div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
@@ -161,10 +171,10 @@ import { SOIL_TEXTURE_LABELS } from '../../models/soil-parameters.model';
           </div>
         }
 
-        <!-- Action Button -->
+        <!-- Action Button - larger touch target on mobile -->
         <a
           [routerLink]="['/lands', land._id]"
-          class="w-full btn-outline text-sm py-2.5 justify-center"
+          class="w-full btn-outline text-sm py-3 sm:py-2.5 justify-center touch-target active:scale-[0.98] transition-transform"
         >
           Voir les details
           <svg class="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -182,6 +192,18 @@ export class LandCardComponent {
 
   formatPrice = formatPrice;
   formatSurface = formatSurface;
+
+  // Mobile touch states
+  isPressed = signal(false);
+  favoriteAnimating = signal(false);
+
+  onTouchStart(): void {
+    this.isPressed.set(true);
+  }
+
+  onTouchEnd(): void {
+    this.isPressed.set(false);
+  }
 
   getTypeLabel(type: string): string {
     return LAND_TYPE_LABELS[type as keyof typeof LAND_TYPE_LABELS] || type;
@@ -213,6 +235,11 @@ export class LandCardComponent {
   onFavoriteClick(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
+
+    // Trigger animation
+    this.favoriteAnimating.set(true);
+    setTimeout(() => this.favoriteAnimating.set(false), 300);
+
     this.favoriteToggle.emit(this.land);
   }
 }

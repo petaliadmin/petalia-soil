@@ -3,6 +3,9 @@ export type SoilAnalysisStatus = 'pending' | 'processing' | 'completed' | 'cance
 export interface SoilAnalysisRequest {
   _id?: string;
 
+  // User reference (if authenticated)
+  userId?: string;
+
   // Contact information
   fullName: string;
   email: string;
@@ -27,6 +30,7 @@ export interface SoilAnalysisRequest {
 }
 
 export interface CreateSoilAnalysisRequest {
+  userId?: string;
   fullName: string;
   email: string;
   phone: string;

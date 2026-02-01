@@ -54,6 +54,11 @@ export const adminRoutes: Routes = [
         title: 'Modifier la terre - Admin Petalia Soil'
       },
       {
+        path: 'my-requests',
+        loadComponent: () => import('./my-requests/owner-my-requests.component').then(m => m.OwnerMyRequestsComponent),
+        title: 'Mes demandes d\'analyse - Petalia Soil'
+      },
+      {
         path: 'users',
         loadComponent: () => import('./users/admin-users-list.component').then(m => m.AdminUsersListComponent),
         canActivate: [adminGuard],
@@ -62,7 +67,26 @@ export const adminRoutes: Routes = [
       {
         path: 'soil-analysis',
         loadComponent: () => import('./soil-analysis/admin-soil-analysis-list.component').then(m => m.AdminSoilAnalysisListComponent),
+        canActivate: [adminGuard],
         title: 'Demandes d\'analyse - Admin Petalia Soil'
+      },
+      {
+        path: 'technicians',
+        loadComponent: () => import('./technicians/admin-technicians-list.component').then(m => m.AdminTechniciansListComponent),
+        canActivate: [adminGuard],
+        title: 'Gestion des techniciens - Admin Petalia Soil'
+      },
+      {
+        path: 'technicians/new',
+        loadComponent: () => import('./technicians/admin-technician-form.component').then(m => m.AdminTechnicianFormComponent),
+        canActivate: [adminGuard],
+        title: 'Nouveau technicien - Admin Petalia Soil'
+      },
+      {
+        path: 'technicians/:id/edit',
+        loadComponent: () => import('./technicians/admin-technician-form.component').then(m => m.AdminTechnicianFormComponent),
+        canActivate: [adminGuard],
+        title: 'Modifier le technicien - Admin Petalia Soil'
       },
       {
         path: '',
