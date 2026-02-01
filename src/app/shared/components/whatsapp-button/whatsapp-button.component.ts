@@ -21,7 +21,7 @@ import { AuthService } from '../../services/auth.service';
         }
 
         <a
-          href="https://wa.me/221769065852?text=Bonjour%2C%20je%20vous%20contacte%20depuis%20Petalia%20Soil.%20"
+          href="https://wa.me/221769055852?text=Bonjour%2C%20je%20vous%20contacte%20depuis%20Petalia%20Soil.%20"
           target="_blank"
           rel="noopener noreferrer"
           (mouseenter)="showWhatsappTooltip.set(true)"
