@@ -212,6 +212,7 @@ export class LandService {
     if (this.config.useMockData) {
       // Simple distance calculation for mock data
       const filtered = MOCK_LANDS.filter(land => {
+        if (!land.location) return false;
         const distance = this.calculateDistance(
           params.latitude,
           params.longitude,
@@ -410,15 +411,15 @@ export class LandService {
       }
 
       // pH filters
-      if (filters.minPh && land.soilParameters.ph < filters.minPh) {
+      if (filters.minPh && land.soilParameters && land.soilParameters.ph < filters.minPh) {
         return false;
       }
-      if (filters.maxPh && land.soilParameters.ph > filters.maxPh) {
+      if (filters.maxPh && land.soilParameters && land.soilParameters.ph > filters.maxPh) {
         return false;
       }
 
       // Texture filter
-      if (filters.texture?.length && !filters.texture.includes(land.soilParameters.texture)) {
+      if (filters.texture?.length && land.soilParameters && !filters.texture.includes(land.soilParameters.texture)) {
         return false;
       }
 

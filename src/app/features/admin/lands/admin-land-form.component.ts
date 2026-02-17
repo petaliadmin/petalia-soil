@@ -4,8 +4,10 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } 
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { LandService } from '../../../shared/services/land.service';
 import { AdminLandService, CreateLandDto, UpdateLandDto } from '../../../shared/services/admin-land.service';
+import { SoilAnalysisRequestService } from '../../../shared/services/soil-analysis-request.service';
+import { AuthService } from '../../../shared/services/auth.service';
 import { Land, LandType, LandStatus } from '../../../shared/models/land.model';
-import { SOIL_TEXTURES, DRAINAGE_QUALITIES } from '../../../shared/models/soil-parameters.model';
+import { CreateSoilAnalysisRequest } from '../../../shared/models/soil-analysis-request.model';
 
 interface UploadedImage {
   id: string;
@@ -274,326 +276,131 @@ interface UploadedImage {
               />
             </div>
 
-            <!-- GPS Coordinates Section -->
-            <div class="md:col-span-2">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Coordonnees GPS</span>
-                <button
-                  type="button"
-                  (click)="getCurrentLocation()"
-                  [disabled]="geoLoading()"
-                  class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-agri-600 dark:text-agri-400 bg-agri-50 dark:bg-agri-900/20 rounded-lg hover:bg-agri-100 dark:hover:bg-agri-900/40 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  @if (geoLoading()) {
-                    <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Localisation...
-                  } @else {
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    Ma position actuelle
-                  }
-                </button>
+            <!-- GPS Coordinates - Read only, filled by technician -->
+            @if (isEditMode() && existingLand()?.location) {
+              <div class="md:col-span-2 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Coordonnees GPS</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400">
+                    Renseigne par le technicien
+                  </span>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mt-2">
+                  <div>
+                    <span class="text-xs text-gray-500">Latitude</span>
+                    <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ existingLand()!.location!.coordinates[1] }}</p>
+                  </div>
+                  <div>
+                    <span class="text-xs text-gray-500">Longitude</span>
+                    <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ existingLand()!.location!.coordinates[0] }}</p>
+                  </div>
+                </div>
               </div>
-              @if (geoError()) {
-                <div class="mb-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                  <p class="text-sm text-red-600 dark:text-red-400">{{ geoError() }}</p>
+            } @else if (!isEditMode()) {
+              <div class="md:col-span-2 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <div class="flex items-start gap-2">
+                  <svg class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                  <div>
+                    <p class="text-sm font-medium text-blue-800 dark:text-blue-300">Geolocalisation par le technicien</p>
+                    <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                      Les coordonnees GPS seront relevees par le technicien lors de sa visite sur le terrain avec son capteur.
+                    </p>
+                  </div>
                 </div>
-              }
-              @if (geoSuccess()) {
-                <div class="mb-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                  <p class="text-sm text-green-600 dark:text-green-400">{{ geoSuccess() }}</p>
-                </div>
-              }
-            </div>
-
-            <!-- Latitude -->
-            <div>
-              <label for="latitude" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Latitude *
-              </label>
-              <input
-                type="number"
-                id="latitude"
-                formControlName="latitude"
-                step="0.0001"
-                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
-                placeholder="Ex: 16.4625"
-                [class.border-red-500]="isFieldInvalid('latitude')"
-              />
-            </div>
-
-            <!-- Longitude -->
-            <div>
-              <label for="longitude" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Longitude *
-              </label>
-              <input
-                type="number"
-                id="longitude"
-                formControlName="longitude"
-                step="0.0001"
-                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
-                placeholder="Ex: -15.6983"
-                [class.border-red-500]="isFieldInvalid('longitude')"
-              />
-            </div>
+              </div>
+            }
           </div>
         </div>
 
-        <!-- Soil Parameters -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Paramètres du sol
-          </h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- pH -->
-            <div>
-              <label for="ph" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                pH du sol * <span class="text-gray-400">(0-14)</span>
-              </label>
-              <input
-                type="number"
-                id="ph"
-                formControlName="ph"
-                step="0.1"
-                min="0"
-                max="14"
-                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
-                placeholder="Ex: 6.5"
-                [class.border-red-500]="isFieldInvalid('ph')"
-              />
-            </div>
-
-            <!-- Nitrogen -->
-            <div>
-              <label for="nitrogen" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Azote (N) mg/kg *
-              </label>
-              <input
-                type="number"
-                id="nitrogen"
-                formControlName="nitrogen"
-                min="0"
-                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
-                placeholder="Ex: 45"
-                [class.border-red-500]="isFieldInvalid('nitrogen')"
-              />
-            </div>
-
-            <!-- Phosphorus -->
-            <div>
-              <label for="phosphorus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Phosphore (P) mg/kg *
-              </label>
-              <input
-                type="number"
-                id="phosphorus"
-                formControlName="phosphorus"
-                min="0"
-                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
-                placeholder="Ex: 30"
-                [class.border-red-500]="isFieldInvalid('phosphorus')"
-              />
-            </div>
-
-            <!-- Potassium -->
-            <div>
-              <label for="potassium" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Potassium (K) mg/kg *
-              </label>
-              <input
-                type="number"
-                id="potassium"
-                formControlName="potassium"
-                min="0"
-                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
-                placeholder="Ex: 150"
-                [class.border-red-500]="isFieldInvalid('potassium')"
-              />
-            </div>
-
-            <!-- Texture -->
-            <div>
-              <label for="texture" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Texture du sol *
-              </label>
-              <select
-                id="texture"
-                formControlName="texture"
-                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-agri-500"
-              >
-                @for (texture of soilTextures; track texture.value) {
-                  <option [value]="texture.value">{{ texture.label }}</option>
-                }
-              </select>
-            </div>
-
-            <!-- Moisture -->
-            <div>
-              <label for="moisture" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Humidité (%) * <span class="text-gray-400">(0-100)</span>
-              </label>
-              <input
-                type="number"
-                id="moisture"
-                formControlName="moisture"
-                min="0"
-                max="100"
-                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
-                placeholder="Ex: 35"
-                [class.border-red-500]="isFieldInvalid('moisture')"
-              />
-            </div>
-
-            <!-- Drainage -->
-            <div>
-              <label for="drainage" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Qualité du drainage *
-              </label>
-              <select
-                id="drainage"
-                formControlName="drainage"
-                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-agri-500"
-              >
-                @for (drainage of drainageQualities; track drainage.value) {
-                  <option [value]="drainage.value">{{ drainage.label }}</option>
-                }
-              </select>
-            </div>
-
-            <!-- Organic Matter -->
-            <div>
-              <label for="organicMatter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Matière organique (%)
-              </label>
-              <input
-                type="number"
-                id="organicMatter"
-                formControlName="organicMatter"
-                min="0"
-                step="0.1"
-                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
-                placeholder="Ex: 3.5"
-              />
-            </div>
-
-            <!-- Salinity -->
-            <div>
-              <label for="salinity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Salinité (dS/m)
-              </label>
-              <input
-                type="number"
-                id="salinity"
-                formControlName="salinity"
-                min="0"
-                step="0.1"
-                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
-                placeholder="Ex: 0.5"
-              />
-            </div>
-
-            <!-- CEC -->
-            <div>
-              <label for="cec" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                CEC (meq/100g)
-              </label>
-              <input
-                type="number"
-                id="cec"
-                formControlName="cec"
-                min="0"
-                step="0.1"
-                class="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
-                placeholder="Ex: 15"
-              />
-            </div>
-          </div>
-        </div>
-
-        <!-- Images -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Images
-          </h2>
-
-          <!-- Upload Zone -->
-          <div
-            class="relative border-2 border-dashed rounded-xl p-8 text-center transition-colors"
-            [class.border-gray-300]="!isDragging()"
-            [class.dark:border-gray-600]="!isDragging()"
-            [class.border-agri-500]="isDragging()"
-            [class.bg-agri-50]="isDragging()"
-            [class.dark:bg-agri-900/20]="isDragging()"
-            (dragover)="onDragOver($event)"
-            (dragleave)="onDragLeave($event)"
-            (drop)="onDrop($event)"
-          >
-            <input
-              type="file"
-              id="imageUpload"
-              multiple
-              accept="image/*"
-              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              (change)="onFileSelected($event)"
-            />
-            <div class="space-y-3">
-              <div class="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        <!-- Soil Parameters (read-only, filled by technician) -->
+        @if (isEditMode() && hasSoilParameters()) {
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                Parametres du sol
+              </h2>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400">
+                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                 </svg>
-              </div>
+                Renseigne par un technicien
+              </span>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              Ces parametres sont renseignes exclusivement par un technicien lors de l'analyse de sol sur le terrain.
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              @if (existingLand()?.soilParameters; as sp) {
+                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">pH</span>
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ sp.ph }}</p>
+                </div>
+                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Azote (N)</span>
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ sp.npk.nitrogen }} mg/kg</p>
+                </div>
+                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Phosphore (P)</span>
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ sp.npk.phosphorus }} mg/kg</p>
+                </div>
+                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Potassium (K)</span>
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ sp.npk.potassium }} mg/kg</p>
+                </div>
+                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Texture</span>
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white capitalize">{{ sp.texture }}</p>
+                </div>
+                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Humidite</span>
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ sp.moisture }}%</p>
+                </div>
+                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                  <span class="text-xs text-gray-500 dark:text-gray-400">Drainage</span>
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white capitalize">{{ sp.drainage }}</p>
+                </div>
+              }
+            </div>
+          </div>
+        } @else if (!isEditMode()) {
+          <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
               <div>
-                <p class="text-sm font-medium text-gray-900 dark:text-white">
-                  Glissez vos images ici ou <span class="text-agri-600 dark:text-agri-400">parcourir</span>
-                </p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  PNG, JPG, WEBP jusqu'à 5MB (max 5 images)
+                <h3 class="text-sm font-semibold text-amber-800 dark:text-amber-300">Analyse de sol automatique</h3>
+                <p class="mt-1 text-sm text-amber-700 dark:text-amber-400">
+                  Une demande d'analyse de sol sera automatiquement generee a la creation de cette annonce.
+                  Un technicien sera affecte pour effectuer les mesures sur le terrain et renseigner les parametres du sol.
                 </p>
               </div>
             </div>
           </div>
+        }
 
-          <!-- Image Previews -->
-          @if (uploadedImages().length > 0) {
-            <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        <!-- Images (read-only, added by technician) -->
+        @if (isEditMode() && uploadedImages().length > 0) {
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                Photos du terrain
+              </h2>
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400">
+                Prises par le technicien
+              </span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
               @for (image of uploadedImages(); track image.id; let i = $index) {
-                <div class="relative group aspect-square">
+                <div class="relative aspect-square">
                   <img
                     [src]="image.preview"
                     [alt]="image.name"
                     class="w-full h-full object-cover rounded-lg"
                   />
-                  <!-- Overlay -->
-                  <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                    <button
-                      type="button"
-                      (click)="removeImage(i)"
-                      class="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                    >
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                      </svg>
-                    </button>
-                  </div>
-                  <!-- Upload progress -->
-                  @if (image.uploading) {
-                    <div class="absolute inset-0 bg-black/60 rounded-lg flex items-center justify-center">
-                      <div class="text-center">
-                        <svg class="animate-spin w-6 h-6 text-white mx-auto" fill="none" viewBox="0 0 24 24">
-                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <p class="text-xs text-white mt-1">{{ image.progress }}%</p>
-                      </div>
-                    </div>
-                  }
-                  <!-- First image badge -->
                   @if (i === 0) {
                     <span class="absolute top-2 left-2 px-2 py-0.5 bg-agri-500 text-white text-xs font-medium rounded">
                       Principale
@@ -602,41 +409,22 @@ interface UploadedImage {
                 </div>
               }
             </div>
-          }
-
-          <!-- URL Input Alternative -->
-          <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <button
-              type="button"
-              (click)="toggleUrlInput()"
-              class="text-sm text-agri-600 dark:text-agri-400 hover:underline flex items-center gap-1"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
-              </svg>
-              {{ showUrlInput() ? 'Masquer' : 'Ajouter via URL' }}
-            </button>
-
-            @if (showUrlInput()) {
-              <div class="mt-3 flex gap-2">
-                <input
-                  type="url"
-                  [(ngModel)]="imageUrl"
-                  [ngModelOptions]="{standalone: true}"
-                  class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-agri-500 focus:border-transparent"
-                  placeholder="https://example.com/image.jpg"
-                />
-                <button
-                  type="button"
-                  (click)="addImageFromUrl()"
-                  class="px-4 py-2 bg-agri-600 text-white rounded-lg hover:bg-agri-700 transition-colors"
-                >
-                  Ajouter
-                </button>
-              </div>
-            }
           </div>
-        </div>
+        } @else if (!isEditMode()) {
+          <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <div>
+                <h3 class="text-sm font-semibold text-blue-800 dark:text-blue-300">Photos par le technicien</h3>
+                <p class="mt-1 text-sm text-blue-600 dark:text-blue-400">
+                  Les photos du terrain seront prises par le technicien lors de sa visite sur le terrain.
+                </p>
+              </div>
+            </div>
+          </div>
+        }
 
         <!-- Actions -->
         <div class="flex items-center justify-end space-x-4">
@@ -670,11 +458,15 @@ export class AdminLandFormComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private landService = inject(LandService);
+  private soilAnalysisService = inject(SoilAnalysisRequestService);
+  private authService = inject(AuthService);
   adminLandService = inject(AdminLandService);
 
   isEditMode = signal(false);
   landId = signal<string | null>(null);
   loadingLand = signal(false);
+  existingLand = signal<Land | null>(null);
+  hasSoilParameters = signal(false);
   isDragging = signal(false);
   uploadedImages = signal<UploadedImage[]>([]);
   showUrlInput = signal(false);
@@ -691,9 +483,6 @@ export class AdminLandFormComponent implements OnInit {
     'Sédhiou', 'Tambacounda', 'Thiès', 'Ziguinchor'
   ];
 
-  soilTextures = SOIL_TEXTURES;
-  drainageQualities = DRAINAGE_QUALITIES;
-
   form: FormGroup = this.fb.group({
     // Informations générales
     title: ['', [Validators.required, Validators.minLength(5)]],
@@ -703,26 +492,14 @@ export class AdminLandFormComponent implements OnInit {
     surface: [null, [Validators.required, Validators.min(0)]],
     price: [null, [Validators.required, Validators.min(0)]],
     priceUnit: ['FCFA'],
-    // Localisation - Coordonnées
-    latitude: [null, [Validators.required, Validators.min(-90), Validators.max(90)]],
-    longitude: [null, [Validators.required, Validators.min(-180), Validators.max(180)]],
     // Adresse
     city: ['', Validators.required],
     region: ['', Validators.required],
     commune: ['', Validators.required],
     village: [''],
-    fullAddress: [''],
-    // Paramètres du sol
-    ph: [6.5, [Validators.required, Validators.min(0), Validators.max(14)]],
-    nitrogen: [null, [Validators.required, Validators.min(0)]],
-    phosphorus: [null, [Validators.required, Validators.min(0)]],
-    potassium: [null, [Validators.required, Validators.min(0)]],
-    texture: ['loamy', Validators.required],
-    moisture: [null, [Validators.required, Validators.min(0), Validators.max(100)]],
-    drainage: ['good', Validators.required],
-    organicMatter: [null, [Validators.min(0)]],
-    salinity: [null, [Validators.min(0)]],
-    cec: [null, [Validators.min(0)]]
+    fullAddress: ['']
+    // Note: Les paramètres du sol ne sont PAS dans ce formulaire.
+    // Seul un technicien peut les renseigner via une mission d'analyse.
   });
 
   ngOnInit(): void {
@@ -739,6 +516,9 @@ export class AdminLandFormComponent implements OnInit {
     this.landService.getLandById(id).subscribe(land => {
       this.loadingLand.set(false);
       if (land) {
+        this.existingLand.set(land);
+        this.hasSoilParameters.set(!!land.soilParameters);
+
         this.form.patchValue({
           // Informations générales
           title: land.title,
@@ -748,26 +528,12 @@ export class AdminLandFormComponent implements OnInit {
           surface: land.surface,
           price: land.price,
           priceUnit: land.priceUnit || 'FCFA',
-          // Localisation
-          latitude: land.location.coordinates[1],
-          longitude: land.location.coordinates[0],
-          // Adresse
+          // Adresse (la localisation GPS est renseignee par le technicien)
           city: land.address.city,
           region: land.address.region,
           commune: land.address.commune,
           village: land.address.village || '',
-          fullAddress: land.address.fullAddress || '',
-          // Paramètres du sol
-          ph: land.soilParameters.ph,
-          nitrogen: land.soilParameters.npk.nitrogen,
-          phosphorus: land.soilParameters.npk.phosphorus,
-          potassium: land.soilParameters.npk.potassium,
-          texture: land.soilParameters.texture,
-          moisture: land.soilParameters.moisture,
-          drainage: land.soilParameters.drainage,
-          organicMatter: land.soilParameters.organicMatter,
-          salinity: land.soilParameters.salinity,
-          cec: land.soilParameters.cec
+          fullAddress: land.address.fullAddress || ''
         });
 
         // Load existing images
@@ -954,22 +720,6 @@ export class AdminLandFormComponent implements OnInit {
     this.adminLandService.clearMessages();
     const formValue = this.form.value;
 
-    // Build soil parameters with nested NPK
-    const soilParameters = {
-      ph: formValue.ph,
-      npk: {
-        nitrogen: formValue.nitrogen,
-        phosphorus: formValue.phosphorus,
-        potassium: formValue.potassium
-      },
-      texture: formValue.texture,
-      moisture: formValue.moisture,
-      drainage: formValue.drainage,
-      ...(formValue.organicMatter != null && { organicMatter: formValue.organicMatter }),
-      ...(formValue.salinity != null && { salinity: formValue.salinity }),
-      ...(formValue.cec != null && { cec: formValue.cec })
-    };
-
     // Build address
     const address = {
       city: formValue.city,
@@ -980,13 +730,9 @@ export class AdminLandFormComponent implements OnInit {
       country: 'Sénégal'
     };
 
-    // Build location
-    const location = {
-      type: 'Point' as const,
-      coordinates: [formValue.longitude, formValue.latitude] as [number, number]
-    };
-
     if (this.isEditMode()) {
+      // En mode édition: pas de soilParameters, pas de location, pas d'images
+      // (tous renseignés par le technicien)
       const updateData: UpdateLandDto = {
         title: formValue.title,
         description: formValue.description,
@@ -994,11 +740,8 @@ export class AdminLandFormComponent implements OnInit {
         type: formValue.type,
         price: formValue.price,
         priceUnit: formValue.priceUnit,
-        location,
         address,
-        soilParameters,
-        status: formValue.status,
-        images: this.getImageUrls()
+        status: formValue.status
       };
 
       this.adminLandService.updateLand(this.landId()!, updateData).subscribe({
@@ -1007,6 +750,8 @@ export class AdminLandFormComponent implements OnInit {
         }
       });
     } else {
+      // Création: pas de soilParameters, location, ni images
+      // (seul un technicien peut les renseigner via une mission d'analyse)
       const createData: CreateLandDto = {
         title: formValue.title,
         description: formValue.description,
@@ -1014,17 +759,41 @@ export class AdminLandFormComponent implements OnInit {
         type: formValue.type,
         price: formValue.price,
         priceUnit: formValue.priceUnit,
-        location,
-        address,
-        soilParameters,
-        images: this.getImageUrls()
+        address
       };
 
       this.adminLandService.createLand(createData).subscribe({
-        next: () => {
+        next: (land) => {
+          // Auto-générer une demande d'analyse de sol liée à cette annonce
+          if (land) {
+            this.createAutoAnalysisRequest(land, formValue);
+          }
           this.router.navigate(['/admin/lands']);
         }
       });
     }
+  }
+
+  /**
+   * Auto-generate a soil analysis request when an owner creates a land listing.
+   * The request is linked to the land via landId and origin 'land_listing'.
+   */
+  private createAutoAnalysisRequest(land: Land, formValue: any): void {
+    const user = this.authService.user();
+    const analysisRequest: CreateSoilAnalysisRequest = {
+      userId: user?._id,
+      fullName: user?.fullName || '',
+      email: user?.email || '',
+      phone: user?.phone || '',
+      region: formValue.region,
+      commune: formValue.commune,
+      surface: formValue.surface,
+      description: `Demande d'analyse automatique pour l'annonce: ${formValue.title}`,
+      // Pas de coordonnees GPS : le technicien les relevera sur le terrain
+      landId: land._id,
+      origin: 'land_listing'
+    };
+
+    this.soilAnalysisService.submitRequest(analysisRequest).subscribe();
   }
 }

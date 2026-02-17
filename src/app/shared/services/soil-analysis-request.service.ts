@@ -69,6 +69,7 @@ export class SoilAnalysisRequestService {
           const mockRequest: SoilAnalysisRequest = {
             _id: 'mock_' + Date.now(),
             ...data,
+            origin: data.origin || 'standalone',
             status: 'pending',
             createdAt: new Date().toISOString()
           };
@@ -288,6 +289,8 @@ export class SoilAnalysisRequestService {
         commune: 'Tivaouane',
         surface: 5.5,
         description: 'Parcelle destinée à la culture maraîchère',
+        origin: 'land_listing',
+        landId: 'land_1',
         status: 'pending',
         createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
       },
@@ -300,6 +303,7 @@ export class SoilAnalysisRequestService {
         commune: 'Richard-Toll',
         surface: 12,
         description: 'Terrain pour riziculture',
+        origin: 'standalone',
         status: 'processing',
         createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
       },
@@ -311,6 +315,8 @@ export class SoilAnalysisRequestService {
         region: 'Kaolack',
         commune: 'Nioro du Rip',
         surface: 8,
+        origin: 'land_listing',
+        landId: 'land_3',
         status: 'completed',
         createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()
       },
@@ -323,6 +329,7 @@ export class SoilAnalysisRequestService {
         commune: 'Rufisque',
         surface: 3,
         description: 'Petit jardin maraîcher',
+        origin: 'standalone',
         status: 'pending',
         createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
       },
@@ -335,6 +342,7 @@ export class SoilAnalysisRequestService {
         commune: 'Bignona',
         surface: 15,
         description: 'Plantation fruitière',
+        origin: 'standalone',
         status: 'cancelled',
         createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString()
       }

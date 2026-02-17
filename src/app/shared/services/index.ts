@@ -6,3 +6,7 @@ export * from './admin-land.service';
 export * from './user.service';
 export * from './crop-recommendation.service';
 export * from './crop-data';
+export * from './report.service';
+export * from './soil-analysis-request.service';
+export * from './mission.service';
+export * from './technician.service';

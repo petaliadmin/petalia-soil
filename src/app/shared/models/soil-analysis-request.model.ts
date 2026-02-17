@@ -1,5 +1,12 @@
 export type SoilAnalysisStatus = 'pending' | 'processing' | 'completed' | 'cancelled';
 
+/**
+ * Origin of the soil analysis request
+ * - land_listing: auto-generated when an owner creates a land listing
+ * - standalone: user requests analysis without an existing land listing
+ */
+export type SoilAnalysisOrigin = 'land_listing' | 'standalone';
+
 export interface SoilAnalysisRequest {
   _id?: string;
 
@@ -23,6 +30,12 @@ export interface SoilAnalysisRequest {
     longitude: number;
   };
 
+  // Associated land (populated when analysis is completed, or set at creation for land_listing origin)
+  landId?: string;
+
+  // Origin: how the request was created
+  origin: SoilAnalysisOrigin;
+
   // Metadata
   status: SoilAnalysisStatus;
   createdAt: string;
@@ -42,6 +55,8 @@ export interface CreateSoilAnalysisRequest {
     latitude: number;
     longitude: number;
   };
+  landId?: string;
+  origin?: SoilAnalysisOrigin;
 }
 
 export const SOIL_ANALYSIS_STATUS_LABELS: Record<SoilAnalysisStatus, string> = {
@@ -49,6 +64,11 @@ export const SOIL_ANALYSIS_STATUS_LABELS: Record<SoilAnalysisStatus, string> = {
   processing: 'En cours',
   completed: 'Termine',
   cancelled: 'Annule'
+};
+
+export const SOIL_ANALYSIS_ORIGIN_LABELS: Record<SoilAnalysisOrigin, string> = {
+  land_listing: 'Annonce de terre',
+  standalone: 'Demande directe'
 };
 
 export const SENEGAL_REGIONS = [

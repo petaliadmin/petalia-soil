@@ -58,10 +58,10 @@ export interface CreateLandDto {
   type: LandType;
   price: number;
   priceUnit?: string;
-  location: LocationDto;
+  location?: LocationDto;    // Optional: filled by technician
   address?: AddressDto;
   soilParameters?: SoilParametersDto;
-  images?: string[];
+  images?: string[];         // Optional: photos taken by technician
 }
 
 /**

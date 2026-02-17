@@ -400,6 +400,7 @@ type TabType = 'requests' | 'favorites' | 'visited' | 'rented';
                         </span>
                       </div>
                       <!-- Soil Info -->
+                      @if (land.soilParameters) {
                       <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-3">
                         <span class="flex items-center">
                           <span
@@ -411,6 +412,11 @@ type TabType = 'requests' | 'favorites' | 'visited' | 'rented';
                         </span>
                         <span>{{ land.soilParameters.moisture }}% humidite</span>
                       </div>
+                      } @else {
+                      <div class="flex items-center gap-4 text-xs text-gray-400 italic mb-3">
+                        Analyse de sol en attente
+                      </div>
+                      }
                       <!-- Actions -->
                       <div class="flex gap-2">
                         <a

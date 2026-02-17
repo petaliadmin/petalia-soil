@@ -160,13 +160,13 @@ import { getLatitude, getLongitude } from '../../shared/models/location.model';
                     </div>
                     <div class="text-center">
                       <p class="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                        {{ land()!.soilParameters.ph }}
+                        {{ land()!.soilParameters!.ph }}
                       </p>
                       <p class="text-xs text-gray-500">pH</p>
                     </div>
                     <div class="text-center">
                       <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                        {{ land()!.soilParameters.moisture }}%
+                        {{ land()!.soilParameters!.moisture }}%
                       </p>
                       <p class="text-xs text-gray-500">Humidite</p>
                     </div>
@@ -183,6 +183,7 @@ import { getLatitude, getLongitude } from '../../shared/models/location.model';
               </div>
 
               <!-- Soil Parameters -->
+              @if (land()!.soilParameters) {
               <div class="card p-6 md:p-8">
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
                   <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
@@ -198,7 +199,7 @@ import { getLatitude, getLongitude } from '../../shared/models/location.model';
                   <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                     <app-soil-gauge
                       label="pH du sol"
-                      [value]="land()!.soilParameters.ph"
+                      [value]="land()!.soilParameters!.ph"
                       [min]="0"
                       [max]="14"
                       [optimal]="{ min: 6, max: 7.5 }"
@@ -213,7 +214,7 @@ import { getLatitude, getLongitude } from '../../shared/models/location.model';
                   <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                     <app-soil-gauge
                       label="Humidite"
-                      [value]="land()!.soilParameters.moisture"
+                      [value]="land()!.soilParameters!.moisture"
                       [min]="0"
                       [max]="100"
                       unit="%"
@@ -230,7 +231,7 @@ import { getLatitude, getLongitude } from '../../shared/models/location.model';
                       <div>
                         <app-soil-gauge
                           label="Azote (N)"
-                          [value]="land()!.soilParameters.npk.nitrogen"
+                          [value]="land()!.soilParameters!.npk.nitrogen"
                           [min]="0"
                           [max]="100"
                           unit=" mg/kg"
@@ -239,7 +240,7 @@ import { getLatitude, getLongitude } from '../../shared/models/location.model';
                       <div>
                         <app-soil-gauge
                           label="Phosphore (P)"
-                          [value]="land()!.soilParameters.npk.phosphorus"
+                          [value]="land()!.soilParameters!.npk.phosphorus"
                           [min]="0"
                           [max]="60"
                           unit=" mg/kg"
@@ -248,7 +249,7 @@ import { getLatitude, getLongitude } from '../../shared/models/location.model';
                       <div>
                         <app-soil-gauge
                           label="Potassium (K)"
-                          [value]="land()!.soilParameters.npk.potassium"
+                          [value]="land()!.soilParameters!.npk.potassium"
                           [min]="0"
                           [max]="300"
                           unit=" mg/kg"
@@ -262,7 +263,7 @@ import { getLatitude, getLongitude } from '../../shared/models/location.model';
                     <div class="flex items-center justify-between">
                       <span class="text-sm text-gray-600 dark:text-gray-400">Texture du sol</span>
                       <span class="font-semibold text-gray-900 dark:text-white">
-                        {{ getTextureLabel(land()!.soilParameters.texture) }}
+                        {{ getTextureLabel(land()!.soilParameters!.texture) }}
                       </span>
                     </div>
                   </div>
@@ -271,23 +272,24 @@ import { getLatitude, getLongitude } from '../../shared/models/location.model';
                     <div class="flex items-center justify-between">
                       <span class="text-sm text-gray-600 dark:text-gray-400">Drainage</span>
                       <span class="font-semibold text-gray-900 dark:text-white">
-                        {{ getDrainageLabel(land()!.soilParameters.drainage) }}
+                        {{ getDrainageLabel(land()!.soilParameters!.drainage) }}
                       </span>
                     </div>
                   </div>
 
-                  @if (land()!.soilParameters.organicMatter) {
+                  @if (land()!.soilParameters!.organicMatter) {
                     <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                       <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-600 dark:text-gray-400">Matiere organique</span>
                         <span class="font-semibold text-gray-900 dark:text-white">
-                          {{ land()!.soilParameters.organicMatter }}%
+                          {{ land()!.soilParameters!.organicMatter }}%
                         </span>
                       </div>
                     </div>
                   }
                 </div>
               </div>
+              }
 
               <!-- Recommended Crops -->
               @if (land()!.recommendedCrops && land()!.recommendedCrops!.length > 0) {
@@ -539,7 +541,7 @@ export class LandDetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   phDescription = computed(() => {
     const landData = this.land();
-    if (!landData) return { label: '', color: '' };
+    if (!landData || !landData.soilParameters) return { label: '', color: '' };
     return getPhDescription(landData.soilParameters.ph);
   });
 
@@ -596,6 +598,7 @@ export class LandDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     const L = await import('leaflet');
     const Leaflet = L.default || L;
 
+    if (!landData.location) return;
     const lat = getLatitude(landData.location);
     const lng = getLongitude(landData.location);
 

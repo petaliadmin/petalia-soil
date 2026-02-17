@@ -1,5 +1,6 @@
 import { Location, Address } from './location.model';
 import { SoilParameters } from './soil-parameters.model';
+import { SoilMeasurement } from './soil-measurement.model';
 import { Owner } from './owner.model';
 
 /**
@@ -48,12 +49,18 @@ export interface Land {
   pricePerHectare?: number;  // Calculated price per hectare
   status: LandStatus;
 
-  // Location
-  location: Location;        // GeoJSON coordinates
+  // Location (filled by technician during soil analysis)
+  location?: Location;       // GeoJSON coordinates - set by technician
   address: Address;          // Human-readable address
 
-  // Soil data
-  soilParameters: SoilParameters;
+  // Soil data (filled by technician only, not by owner/admin)
+  soilParameters?: SoilParameters;
+
+  // Soil measurement details (sensor, location, technician who performed)
+  soilMeasurement?: SoilMeasurement;
+
+  // Associated soil analysis request
+  analysisRequestId?: string;
 
   // Recommendations (from API or generated)
   recommendedCrops?: CropRecommendation[];
@@ -86,9 +93,9 @@ export interface LandSummary {
   price: number;
   priceUnit?: string;
   status: LandStatus;
-  location: Location;
+  location?: Location;
   address: Address;
-  soilParameters: Pick<SoilParameters, 'ph' | 'npk' | 'texture' | 'moisture'>;
+  soilParameters?: Pick<SoilParameters, 'ph' | 'npk' | 'texture' | 'moisture'>;
   thumbnail?: string;
   createdAt: string;
 }

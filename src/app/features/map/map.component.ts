@@ -122,13 +122,13 @@ type LeafletMarker = any;
                   </div>
                   <div class="text-center">
                     <p class="text-lg font-bold text-amber-600 dark:text-amber-400">
-                      {{ selectedLand()!.soilParameters.ph }}
+                      {{ selectedLand()!.soilParameters?.ph ?? '-' }}
                     </p>
                     <p class="text-xs text-gray-500">pH</p>
                   </div>
                   <div class="text-center">
                     <p class="text-lg font-bold text-blue-600 dark:text-blue-400">
-                      {{ selectedLand()!.soilParameters.moisture }}%
+                      {{ selectedLand()!.soilParameters?.moisture ?? '-' }}%
                     </p>
                     <p class="text-xs text-gray-500">Humidite</p>
                   </div>
@@ -223,9 +223,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const lands = this.landService.filteredLands();
 
-    lands.forEach(land => {
-      const lat = getLatitude(land.location);
-      const lng = getLongitude(land.location);
+    lands.filter(land => !!land.location).forEach(land => {
+      const lat = getLatitude(land.location!);
+      const lng = getLongitude(land.location!);
 
       // Create custom icon based on land type
       const markerColor = land.type === 'RENT' ? '#3b82f6' : '#22c55e';
@@ -295,7 +295,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
             <span style="font-size: 11px; color: #9ca3af; display: block;">Surface</span>
           </div>
           <div>
-            <span style="font-weight: 600; color: #d97706;">pH ${land.soilParameters.ph}</span>
+            <span style="font-weight: 600; color: #d97706;">pH ${land.soilParameters?.ph ?? '-'}</span>
             <span style="font-size: 11px; color: #9ca3af; display: block;">Sol</span>
           </div>
         </div>

@@ -1,7 +1,36 @@
 import { SoilAnalysisRequest } from './soil-analysis-request.model';
 import { Technician } from './technician.model';
+import { SoilMeasurement } from './soil-measurement.model';
+import { Land } from './land.model';
 
 export type MissionStatus = 'assigned' | 'in_progress' | 'completed' | 'cancelled';
+
+/**
+ * Owner/requester contact info embedded in mission for technician access
+ */
+export interface MissionOwnerInfo {
+  _id?: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  whatsapp?: string;
+}
+
+/**
+ * Land info embedded in mission (if a land listing exists)
+ * For standalone requests, technician must fill this in
+ */
+export interface MissionLandInfo {
+  _id?: string;
+  title?: string;
+  surface?: number;
+  region?: string;
+  commune?: string;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
+}
 
 export interface Mission {
   _id: string;
@@ -18,6 +47,19 @@ export interface Mission {
   instructions?: string;
   technicianNotes?: string;
   attachments?: string[];
+
+  // Owner/requester contact info (for technician to contact)
+  ownerInfo?: MissionOwnerInfo;
+
+  // Land info (populated if linked to a land listing, or filled by technician for standalone)
+  landInfo?: MissionLandInfo;
+
+  // Associated land (populated reference)
+  land?: Land | string;
+
+  // Soil measurement results (filled by technician only)
+  soilMeasurement?: SoilMeasurement;
+
   createdAt: string;
   updatedAt?: string;
 }
@@ -36,6 +78,46 @@ export interface UpdateMissionDto {
   instructions?: string;
   technicianNotes?: string;
   attachments?: string[];
+  // Technician can add/update land info for standalone requests
+  landInfo?: MissionLandInfo;
+}
+
+/**
+ * DTO for technician to complete a mission with soil measurement
+ */
+export interface CompleteMissionDto {
+  technicianNotes?: string;
+  attachments?: string[];
+  landInfo?: MissionLandInfo;
+  soilMeasurement: {
+    sensor: {
+      type: string;
+      model: string;
+      serialNumber?: string;
+    };
+    location: {
+      latitude: number;
+      longitude: number;
+      altitude?: number;
+      accuracy?: number;
+    };
+    soilParameters: {
+      ph: number;
+      npk: {
+        nitrogen: number;
+        phosphorus: number;
+        potassium: number;
+      };
+      texture: string;
+      moisture: number;
+      drainage: string;
+      organicMatter?: number;
+      salinity?: number;
+      cec?: number;
+    };
+    measuredAt: string;
+    notes?: string;
+  };
 }
 
 export interface FilterMissionsDto {

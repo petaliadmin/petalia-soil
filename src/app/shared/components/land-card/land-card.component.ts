@@ -98,6 +98,7 @@ import { SOIL_TEXTURE_LABELS } from '../../models/soil-parameters.model';
         </div>
 
         <!-- Soil Parameters - Compact on mobile -->
+        @if (land.soilParameters) {
         <div class="grid grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-4">
           <!-- pH -->
           <div class="flex items-center gap-2 text-sm">
@@ -153,6 +154,7 @@ import { SOIL_TEXTURE_LABELS } from '../../models/soil-parameters.model';
             </div>
           </div>
         </div>
+        }
 
         <!-- Recommended Crops -->
         @if (land.recommendedCrops && land.recommendedCrops.length > 0) {

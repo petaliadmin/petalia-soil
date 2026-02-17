@@ -89,6 +89,11 @@ export const adminRoutes: Routes = [
         title: 'Modifier le technicien - Admin Petalia Soil'
       },
       {
+        path: 'report/:id',
+        loadComponent: () => import('./report/report-preview.component').then(m => m.ReportPreviewComponent),
+        title: 'Rapport d\'analyse - Petalia Soil'
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'

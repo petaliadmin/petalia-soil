@@ -6,8 +6,10 @@ import {
   Mission,
   CreateMissionDto,
   UpdateMissionDto,
+  CompleteMissionDto,
   FilterMissionsDto,
-  MissionStatus
+  MissionStatus,
+  MissionLandInfo
 } from '../models/mission.model';
 import { PaginatedResponse, DEFAULT_PAGE, DEFAULT_LIMIT } from '../models/pagination.model';
 
@@ -180,7 +182,7 @@ export class MissionService {
   }
 
   /**
-   * Complete a mission
+   * Complete a mission (simple - without soil measurement)
    */
   completeMission(id: string, notes?: string): Observable<Mission | null> {
     return this.updateMission(id, {
@@ -188,6 +190,45 @@ export class MissionService {
       completedDate: new Date().toISOString(),
       technicianNotes: notes
     });
+  }
+
+  /**
+   * Complete a mission with full soil measurement data (technician workflow).
+   * Includes sensor info, GPS location, soil parameters, and optionally land info.
+   */
+  completeMissionWithMeasurement(id: string, data: CompleteMissionDto): Observable<Mission | null> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    const payload = {
+      status: 'completed' as MissionStatus,
+      completedDate: new Date().toISOString(),
+      ...data
+    };
+
+    return this.http.patch<ApiResponse<Mission>>(`${this.apiUrl}/${id}/complete`, payload).pipe(
+      map(response => {
+        if (response.success) {
+          this.success.set('Mission terminée avec les résultats d\'analyse');
+          return response.data;
+        }
+        throw new Error(response.message || 'Erreur lors de la complétion');
+      }),
+      tap(() => this.loading.set(false)),
+      catchError(error => {
+        console.error('Error completing mission with measurement:', error);
+        this.loading.set(false);
+        this.error.set(error.error?.message || 'Erreur lors de la complétion de la mission');
+        return of(null);
+      })
+    );
+  }
+
+  /**
+   * Update land info on a mission (technician adds land details for standalone requests)
+   */
+  updateMissionLandInfo(id: string, landInfo: MissionLandInfo): Observable<Mission | null> {
+    return this.updateMission(id, { landInfo });
   }
 
   /**
@@ -244,6 +285,8 @@ export class MissionService {
           region: 'Thies',
           commune: 'Tivaouane',
           surface: 5.5,
+          origin: 'land_listing',
+          landId: 'land_1',
           status: 'processing',
           createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
         },
@@ -265,6 +308,19 @@ export class MissionService {
         status: 'assigned',
         scheduledDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
         instructions: 'Prélever 3 échantillons à différents endroits',
+        ownerInfo: {
+          fullName: 'Amadou Diallo',
+          email: 'amadou@email.com',
+          phone: '+221 77 123 45 67',
+          whatsapp: '+221 77 123 45 67'
+        },
+        landInfo: {
+          title: 'Parcelle maraîchère Tivaouane',
+          surface: 5.5,
+          region: 'Thies',
+          commune: 'Tivaouane',
+          coordinates: { latitude: 14.95, longitude: -16.82 }
+        },
         createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
       },
       {
@@ -277,6 +333,7 @@ export class MissionService {
           region: 'Saint-Louis',
           commune: 'Richard-Toll',
           surface: 12,
+          origin: 'standalone',
           status: 'processing',
           createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
         },
@@ -299,6 +356,12 @@ export class MissionService {
         scheduledDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
         instructions: 'Analyse complète du sol pour riziculture',
         technicianNotes: 'Échantillons prélevés, en cours d\'analyse',
+        ownerInfo: {
+          fullName: 'Fatou Sow',
+          email: 'fatou@email.com',
+          phone: '+221 78 234 56 78'
+        },
+        // Pas de landInfo: demande standalone, le technicien doit renseigner les infos de terre
         createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
       },
       {
@@ -311,6 +374,8 @@ export class MissionService {
           region: 'Kaolack',
           commune: 'Nioro du Rip',
           surface: 8,
+          origin: 'land_listing',
+          landId: 'land_3',
           status: 'completed',
           createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
         },
@@ -333,6 +398,19 @@ export class MissionService {
         scheduledDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
         completedDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
         technicianNotes: 'Analyse terminée. Sol de bonne qualité pour arachide.',
+        ownerInfo: {
+          fullName: 'Moussa Ndiaye',
+          email: 'moussa@email.com',
+          phone: '+221 76 345 67 89'
+        },
+        landInfo: {
+          _id: 'land_3',
+          title: 'Terrain arachide Nioro',
+          surface: 8,
+          region: 'Kaolack',
+          commune: 'Nioro du Rip',
+          coordinates: { latitude: 13.75, longitude: -15.78 }
+        },
         createdAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString()
       }
     ];

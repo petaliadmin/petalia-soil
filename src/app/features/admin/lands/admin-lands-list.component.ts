@@ -1,10 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LandService } from '../../../shared/services/land.service';
 import { AdminLandService } from '../../../shared/services/admin-land.service';
 import { AuthService } from '../../../shared/services/auth.service';
+import { ReportService } from '../../../shared/services/report.service';
 import { Land, LandType, LandStatus, LAND_TYPE_LABELS, LAND_STATUS_LABELS, formatPrice } from '../../../shared/models/land.model';
 
 @Component({
@@ -174,6 +175,9 @@ import { Land, LandType, LandStatus, LAND_TYPE_LABELS, LAND_STATUS_LABELS, forma
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Statut
                   </th>
+                  <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Rapport
+                  </th>
                   <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Actions
                   </th>
@@ -231,6 +235,7 @@ import { Land, LandType, LandStatus, LAND_TYPE_LABELS, LAND_STATUS_LABELS, forma
                       {{ formatPrice(land.price) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
+                      @if (land.soilParameters) {
                       <div class="flex items-center">
                         <span
                           class="w-3 h-3 rounded-full mr-2"
@@ -240,6 +245,9 @@ import { Land, LandType, LandStatus, LAND_TYPE_LABELS, LAND_STATUS_LABELS, forma
                         ></span>
                         <span class="text-sm text-gray-900 dark:text-white">{{ land.soilParameters.ph }}</span>
                       </div>
+                      } @else {
+                        <span class="text-sm text-gray-400 italic">En attente d'analyse</span>
+                      }
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       <div class="flex items-center">
@@ -287,6 +295,41 @@ import { Land, LandType, LandStatus, LAND_TYPE_LABELS, LAND_STATUS_LABELS, forma
                             </svg>
                           </span>
                         }
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                      <div class="flex items-center justify-center gap-1">
+                        <!-- Preview report -->
+                        <button
+                          (click)="viewReport(land)"
+                          [disabled]="downloadingReportId() === land._id"
+                          class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-400 rounded-lg hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors disabled:opacity-50"
+                          title="Voir le rapport"
+                        >
+                          <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                          </svg>
+                          Apercu
+                        </button>
+                        <!-- Download PDF -->
+                        <button
+                          (click)="downloadReport(land)"
+                          [disabled]="downloadingReportId() === land._id"
+                          class="p-1.5 text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                          title="Telecharger le rapport PDF"
+                        >
+                          @if (downloadingReportId() === land._id) {
+                            <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          } @else {
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                          }
+                        </button>
                       </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -404,6 +447,8 @@ export class AdminLandsListComponent implements OnInit {
   landService = inject(LandService);
   adminLandService = inject(AdminLandService);
   authService = inject(AuthService);
+  private reportService = inject(ReportService);
+  private router = inject(Router);
 
   searchQuery = '';
   filterType: LandType | '' = '';
@@ -412,6 +457,7 @@ export class AdminLandsListComponent implements OnInit {
   filteredLands = signal<Land[]>([]);
   landToDelete = signal<Land | null>(null);
   updatingLandId = signal<string | null>(null);
+  downloadingReportId = signal<string | null>(null);
   private allLands = signal<Land[]>([]);
 
   ngOnInit(): void {
@@ -559,6 +605,30 @@ export class AdminLandsListComponent implements OnInit {
       error: () => {
         this.updatingLandId.set(null);
       }
+    });
+  }
+
+  // Report Actions
+  viewReport(land: Land): void {
+    this.router.navigate(['/admin/report', land._id]);
+  }
+
+  downloadReport(land: Land): void {
+    this.downloadingReportId.set(land._id);
+
+    const filename = `rapport-sol-${land.address.commune || land.address.city}-${land.address.region}.pdf`;
+    this.reportService.downloadReportPdf(land._id).subscribe(blob => {
+      if (blob) {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }
+      this.downloadingReportId.set(null);
     });
   }
 }

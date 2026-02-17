@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { SoilAnalysisRequest, SoilAnalysisStatus, SOIL_ANALYSIS_STATUS_LABELS, SENEGAL_REGIONS } from '../../../shared/models/soil-analysis-request.model';
 import { SoilAnalysisRequestService, FilterSoilAnalysisDto } from '../../../shared/services/soil-analysis-request.service';
 import { Technician } from '../../../shared/models/technician.model';
@@ -251,7 +252,20 @@ import { MissionService } from '../../../shared/services/mission.service';
                         } @else if (request.status === 'processing') {
                           <span class="text-sm text-blue-600 dark:text-blue-400">Mission en cours</span>
                         } @else if (request.status === 'completed') {
-                          <span class="text-sm text-green-600 dark:text-green-400">Terminee</span>
+                          <div class="flex flex-col gap-1">
+                            <span class="text-sm text-green-600 dark:text-green-400">Terminee</span>
+                            @if (request.landId) {
+                              <button
+                                (click)="goToLand(request.landId!)"
+                                class="inline-flex items-center text-xs text-amber-600 dark:text-amber-400 hover:underline"
+                              >
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                                </svg>
+                                Voir la terre
+                              </button>
+                            }
+                          </div>
                         } @else {
                           <span class="text-sm text-gray-500">-</span>
                         }
@@ -565,6 +579,44 @@ import { MissionService } from '../../../shared/services/mission.service';
                   <p class="text-gray-600 dark:text-gray-300">{{ selectedRequest()?.description }}</p>
                 </div>
               }
+
+              <!-- Terre associee -->
+              @if (selectedRequest()?.status === 'completed' && selectedRequest()?.landId) {
+                <div class="bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                  <h4 class="text-sm font-medium text-green-700 dark:text-green-400 mb-3 flex items-center">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                    </svg>
+                    Terre associee
+                  </h4>
+                  <div class="flex items-center justify-between">
+                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                      Terre #{{ selectedRequest()?.landId }}
+                    </p>
+                    <div class="flex items-center gap-2">
+                      <button
+                        (click)="goToLand(selectedRequest()!.landId!)"
+                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-amber-700 bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400 rounded-lg hover:bg-amber-200 transition-colors"
+                      >
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        Voir
+                      </button>
+                      <button
+                        (click)="goToReport(selectedRequest()!.landId!)"
+                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-green-700 bg-green-100 dark:bg-green-900/30 dark:text-green-400 rounded-lg hover:bg-green-200 transition-colors"
+                      >
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Rapport
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
             </div>
 
             <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -628,6 +680,7 @@ export class AdminSoilAnalysisListComponent implements OnInit {
   private service = inject(SoilAnalysisRequestService);
   private technicianService = inject(TechnicianService);
   private missionService = inject(MissionService);
+  private router = inject(Router);
 
   // Data
   requests = signal<SoilAnalysisRequest[]>([]);
@@ -922,5 +975,14 @@ export class AdminSoilAnalysisListComponent implements OnInit {
         this.assigningMission.set(false);
       }
     });
+  }
+
+  // Navigation to linked land
+  goToLand(landId: string): void {
+    this.router.navigate(['/admin/lands', landId, 'edit']);
+  }
+
+  goToReport(landId: string): void {
+    this.router.navigate(['/admin/report', landId]);
   }
 }
